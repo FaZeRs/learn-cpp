@@ -1,0 +1,50 @@
+{
+    "name": "C++",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "args": {
+            "VARIANT": "jammy",
+            "GCC_VER": "13",
+            "LLVM_VER": "16"
+        }
+    },
+    "runArgs": [
+        "--cap-add=SYS_PTRACE",
+        "--security-opt",
+        "seccomp=unconfined"
+    ],
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "cmake.configureOnOpen": true,
+                "editor.formatOnSave": true
+            },
+            "extensions": [
+                "ms-vscode.cpptools",
+                "ms-vscode.cmake-tools",
+                "twxs.cmake",
+                "ms-vscode.cpptools-themes",
+                "cschlosser.doxdocgen",
+                "eamodio.gitlens",
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "mutantdino.resourcemonitor",
+                "github.copilot",
+                "github.copilot-labs",
+                "github.vscode-github-actions",
+                "xaver.clang-format",
+                "sonarsource.sonarlint-vscode",
+                "github.copilot-chat"
+            ]
+        }
+    },
+    "remoteUser": "vscode",
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {
+            "version": "latest"
+        },
+        "ghcr.io/devcontainers/features/git-lfs:1": {
+            "version": "latest"
+        }
+    }
+}

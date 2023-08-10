@@ -1,0 +1,102 @@
+name: ci
+on:
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - "README.md"
+      - "LICENSE"
+  release:
+    types: [published]
+  push:
+    tags:
+      - "*"
+    branches:
+      - main
+      - develop
+
+env:
+  VERBOSE: 1
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-latest
+          - ubuntu-latest
+          - macos-latest
+        compiler:
+          - llvm
+          - gcc
+        generator:
+          - "Ninja Multi-Config"
+        build_type:
+          - Release
+          - Debug
+        exclude:
+          - os: windows-latest
+            compiler: gcc
+          - os: windows-latest
+            compiler: llvm
+          - os: macos-latest
+            compiler: gcc
+        include:
+          - os: windows-latest
+            compiler: msvc
+            generator: "Visual Studio 17 2022"
+            build_type: Release
+
+          - os: windows-latest
+            compiler: msvc
+            generator: "Visual Studio 17 2022"
+            build_type: Debug
+
+          - compiler: gcc
+            gcov_executable: gcov
+
+          - compiler: llvm
+            gcov_executable: "llvm-cov gcov"
+
+    steps:
+      - name: Install dependencies
+        if: ${{ contains(matrix.os, 'ubuntu') }}
+        run: sudo apt-get install -y libcurl4-openssl-dev libxcb-xinerama0 libxkbcommon-dev libxkbcommon-x11-dev doxygen graphviz
+
+      - uses: actions/checkout@v3
+
+      - name: Setup Cache
+        uses: ./.github/actions/setup_cache
+        with:
+          compiler: ${{ matrix.compiler }}
+          build_type: ${{ matrix.build_type }}
+          generator: ${{ matrix.generator }}
+
+      - name: Setup Cpp
+        uses: aminya/setup-cpp@v1
+        with:
+          compiler: ${{ matrix.compiler }}
+          vcvarsall: ${{ contains(matrix.os, 'windows' )}}
+          cmake: true
+          ninja: true
+          vcpkg: false
+          ccache: true
+          clangtidy: true
+          cppcheck: true
+          gcovr: true
+          opencppcoverage: true
+
+      - name: Create Build Environment
+        run: cmake -E make_directory ${{ runner.workspace }}/build
+
+      - name: Configure CMake
+        shell: bash
+        working-directory: ${{ runner.workspace }}/build
+        run: |
+          cmake -G "${{ matrix.generator }}" $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE:STRING=${{ matrix.build_type }} -DENABLE_COVERAGE:BOOL=${{ matrix.build_type == 'Debug' }} -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DENABLE_DOCS:BOOL=${{ contains(matrix.os, 'ubuntu') }}
+
+      - name: Build
+        working-directory: ${{ runner.workspace }}/build
+        shell: bash
+        run: cmake --build . --parallel ${{ env.nproc }} --config ${{ matrix.build_type }}

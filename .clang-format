@@ -1,0 +1,9 @@
+﻿BasedOnStyle: Google
+IndentWidth: 2
+---
+Language: Cpp
+Standard: c++20
+PointerAlignment: Left
+ReferenceAlignment: Left
+AlwaysBreakAfterReturnType: None
+SortIncludes: true
