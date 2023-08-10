@@ -1,1 +1,2 @@
 add_subdirectory(creational)
+add_subdirectory(structural)

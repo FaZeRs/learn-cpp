@@ -65,9 +65,6 @@ class WindowsFactory : public Factory {
 };
 
 class Client {
- private:
-  std::shared_ptr<Factory> factory;
-
  public:
   explicit Client(const std::shared_ptr<Factory> &f) : factory(f) {}
 
@@ -91,6 +88,9 @@ class Client {
     menu->draw();
     button->draw();
   }
+
+ private:
+  std::shared_ptr<Factory> factory;
 };
 
 int main() {
