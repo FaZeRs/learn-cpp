@@ -94,7 +94,7 @@ jobs:
         shell: bash
         working-directory: ${{ runner.workspace }}/build
         run: |
-          cmake -G "${{ matrix.generator }}" $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE:STRING=${{ matrix.build_type }} -DENABLE_COVERAGE:BOOL=${{ matrix.build_type == 'Debug' }} -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DENABLE_DOCS:BOOL=${{ contains(matrix.os, 'ubuntu') }}
+          cmake -G "${{ matrix.generator }}" $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE:STRING=${{ matrix.build_type }} -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE
 
       - name: Build
         working-directory: ${{ runner.workspace }}/build
