@@ -25,13 +25,13 @@ class ConcreteComponent : public Component {
 // Step 3: Create the base decorator
 class Decorator : public Component {
  public:
-  explicit Decorator(Component* comp) : component_(comp) {}
+  explicit Decorator(Component* comp) : m_component(comp) {}
   [[nodiscard]] std::string Operation() const override {
-    return component_->Operation();
+    return m_component->Operation();
   }
 
  private:
-  Component* component_;
+  Component* m_component;
 };
 
 // Step 4: Create concrete decorators

@@ -2,18 +2,18 @@
 
 class CPU {
  public:
-  static void freeze() { std::cout << "CPU is frozen.\n"; }
+  static void freeze() { std::cout << "CPU is frozen." << std::endl; }
   static void jump(int64_t position) {
-    std::cout << "CPU jumped to position: " << position << ".\n";
+    std::cout << "CPU jumped to position: " << position << "." << std::endl;
   }
-  static void execute() { std::cout << "CPU execution started.\n"; }
+  static void execute() { std::cout << "CPU execution started." << std::endl; }
 };
 
 class Memory {
  public:
   static void load(int64_t position, const std::string& data) {
     std::cout << "Memory loaded from position " << position
-              << " with data: " << data << ".\n";
+              << " with data: " << data << "." << std::endl;
   }
 };
 
@@ -25,11 +25,6 @@ class HardDrive {
 };
 
 class ComputerFacade {
- private:
-  CPU processor;
-  Memory ram;
-  HardDrive hd;
-
  public:
   ComputerFacade() : processor(), ram(), hd() {}
 
@@ -43,6 +38,11 @@ class ComputerFacade {
   static const int64_t BOOT_ADDRESS = 0;
   static const int64_t BOOT_SECTOR = 0;
   static const int SECTOR_SIZE = 512;
+
+ private:
+  CPU processor;
+  Memory ram;
+  HardDrive hd;
 };
 
 int main() {

@@ -77,7 +77,7 @@ class SpaceShipFactory {
   std::unique_ptr<SpaceShip> createSpaceShip(const RACE &race) {
     if (m_space_ships.find(race) == m_space_ships.end()) {
       std::cout << "SpaceShip not found for race: " << raceToString(race)
-                << "\n";
+                << std::endl;
       return nullptr;
     }
     return m_space_ships[race]->clone();

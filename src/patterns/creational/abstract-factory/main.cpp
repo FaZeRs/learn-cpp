@@ -16,20 +16,20 @@ class Widget {
 
 class LinuxButton : public Widget {
  public:
-  void draw() override { std::cout << "LinuxButton\n"; }
+  void draw() override { std::cout << "LinuxButton" << std::endl; }
 };
 class LinuxMenu : public Widget {
  public:
-  void draw() override { std::cout << "LinuxMenu\n"; }
+  void draw() override { std::cout << "LinuxMenu" << std::endl; }
 };
 
 class WindowsButton : public Widget {
  public:
-  void draw() override { std::cout << "WindowsButton\n"; }
+  void draw() override { std::cout << "WindowsButton" << std::endl; }
 };
 class WindowsMenu : public Widget {
  public:
-  void draw() override { std::cout << "WindowsMenu\n"; }
+  void draw() override { std::cout << "WindowsMenu" << std::endl; }
 };
 
 class Factory {
