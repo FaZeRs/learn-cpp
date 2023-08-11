@@ -15,7 +15,7 @@ class Logger {
   }
 
   void log(const std::string& str) {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::scoped_lock<std::mutex> lock(m_mutex);
     std::cout << "Log value: " << str << std::endl;
   }
 
@@ -39,8 +39,8 @@ void threadTwo() {
 }
 
 int main() {
-  std::thread t1(threadOne);
-  std::thread t2(threadTwo);
+  std::jthread t1(threadOne);
+  std::jthread t2(threadTwo);
   Logger::getInstance().log("Parent process is Waiting for threads");
   t1.join();
   t2.join();

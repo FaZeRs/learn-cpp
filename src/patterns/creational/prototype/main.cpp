@@ -7,16 +7,17 @@ enum class RACE { FEDERATION, KLINGON, ANDORIAN, KELPIEN };
 
 constexpr const char *raceToString(RACE race) {
   switch (race) {
-    case RACE::FEDERATION:
+    using enum RACE;
+    case FEDERATION:
       return "Federation";
-    case RACE::KLINGON:
+    case KLINGON:
       return "Klingon";
-    case RACE::ANDORIAN:
+    case ANDORIAN:
       return "Andorian";
-    case RACE::KELPIEN:
+    case KELPIEN:
       return "Kelpien";
     default:
-      throw "Unknown";
+      return "Unknown";
   }
 }
 
@@ -69,13 +70,14 @@ class AndorianShip : public SpaceShip {
 class SpaceShipFactory {
  public:
   void init() {
-    m_space_ships[RACE::KLINGON] = std::make_unique<KlingonShip>();
-    m_space_ships[RACE::FEDERATION] = std::make_unique<StarFleetShip>();
-    m_space_ships[RACE::ANDORIAN] = std::make_unique<AndorianShip>();
+    using enum RACE;
+    m_space_ships[KLINGON] = std::make_unique<KlingonShip>();
+    m_space_ships[FEDERATION] = std::make_unique<StarFleetShip>();
+    m_space_ships[ANDORIAN] = std::make_unique<AndorianShip>();
   }
 
   std::unique_ptr<SpaceShip> createSpaceShip(const RACE &race) {
-    if (m_space_ships.find(race) == m_space_ships.end()) {
+    if (!m_space_ships.contains(race)) {
       std::cout << "SpaceShip not found for race: " << raceToString(race)
                 << std::endl;
       return nullptr;
@@ -88,13 +90,15 @@ class SpaceShipFactory {
 };
 
 int main() {
+  using enum RACE;
+
   SpaceShipFactory factory;
   factory.init();
 
-  auto federation_ship = factory.createSpaceShip(RACE::FEDERATION);
-  auto klingon_ship = factory.createSpaceShip(RACE::KLINGON);
-  auto andorian_ship = factory.createSpaceShip(RACE::ANDORIAN);
-  auto kelpein_ship = factory.createSpaceShip(RACE::KELPIEN);
+  auto federation_ship = factory.createSpaceShip(FEDERATION);
+  auto klingon_ship = factory.createSpaceShip(KLINGON);
+  auto andorian_ship = factory.createSpaceShip(ANDORIAN);
+  auto kelpein_ship = factory.createSpaceShip(KELPIEN);
 
   if (federation_ship) {
     federation_ship->print();

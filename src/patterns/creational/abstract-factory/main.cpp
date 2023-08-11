@@ -66,31 +66,31 @@ class WindowsFactory : public Factory {
 
 class Client {
  public:
-  explicit Client(const std::shared_ptr<Factory> &f) : factory(f) {}
+  explicit Client(std::shared_ptr<Factory> f) : m_factory(std::move(f)) {}
 
-  void draw() {
-    std::unique_ptr<Widget> w = factory->create_button();
+  void draw() const {
+    std::unique_ptr<Widget> w = m_factory->create_button();
     w->draw();
     display_window_one();
     display_window_two();
   }
 
-  void display_window_one() {
-    std::unique_ptr<Widget> button = factory->create_button();
-    std::unique_ptr<Widget> menu = factory->create_menu();
+  void display_window_one() const {
+    std::unique_ptr<Widget> button = m_factory->create_button();
+    std::unique_ptr<Widget> menu = m_factory->create_menu();
     button->draw();
     menu->draw();
   }
 
-  void display_window_two() {
-    std::unique_ptr<Widget> menu = factory->create_menu();
-    std::unique_ptr<Widget> button = factory->create_button();
+  void display_window_two() const {
+    std::unique_ptr<Widget> menu = m_factory->create_menu();
+    std::unique_ptr<Widget> button = m_factory->create_button();
     menu->draw();
     button->draw();
   }
 
  private:
-  std::shared_ptr<Factory> factory;
+  std::shared_ptr<Factory> m_factory;
 };
 
 int main() {

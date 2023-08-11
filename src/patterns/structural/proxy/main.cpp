@@ -24,12 +24,11 @@ class RealImage : public Image {
   }
 
  private:
+  std::string m_filename;
+
   void loadFromDisk() const {
     std::cout << "Loading " << m_filename << std::endl;
   }
-
- private:
-  std::string m_filename;
 };
 
 class ProxyImage : public Image {

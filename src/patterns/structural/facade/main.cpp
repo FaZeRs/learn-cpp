@@ -2,32 +2,54 @@
 
 class CPU {
  public:
-  static void freeze() { std::cout << "CPU is frozen." << std::endl; }
-  static void jump(int64_t position) {
+  void freeze() {
+    m_is_frozen = true;
+    std::cout << "CPU is frozen." << std::endl;
+  }
+  void jump(int64_t position) {
+    m_position = position;
     std::cout << "CPU jumped to position: " << position << "." << std::endl;
   }
-  static void execute() { std::cout << "CPU execution started." << std::endl; }
+  void execute() {
+    m_is_executing = true;
+    std::cout << "CPU execution started." << std::endl;
+  }
+
+ private:
+  int64_t m_position{};
+  bool m_is_frozen{false};
+  bool m_is_executing{false};
 };
 
 class Memory {
  public:
-  static void load(int64_t position, const std::string& data) {
-    std::cout << "Memory loaded from position " << position
-              << " with data: " << data << "." << std::endl;
+  void load(int64_t position, std::string data) {
+    m_position = position;
+    m_data = std::move(data);
+    std::cout << "Memory loaded data: " << m_data
+              << " at position: " << m_position << "." << std::endl;
   }
+
+ private:
+  int64_t m_position{};
+  std::string m_data{};
 };
 
 class HardDrive {
  public:
-  static std::string read(int64_t /*lba*/, int /*size*/) {
-    return "data from sector";
+  [[nodiscard]] std::string read(int64_t lba, int64_t size) const {
+    std::cout << "HardDrive read data: " << m_data << " at lba: " << lba
+              << " with size: " << size << "." << std::endl;
+    return m_data;
   }
+
+ private:
+  std::string m_data{"Some data"};
 };
 
 class ComputerFacade {
  public:
-  ComputerFacade() : processor(), ram(), hd() {}
-
+  ComputerFacade() = default;
   void start() {
     processor.freeze();
     ram.load(BOOT_ADDRESS, hd.read(BOOT_SECTOR, SECTOR_SIZE));
@@ -40,9 +62,9 @@ class ComputerFacade {
   static const int SECTOR_SIZE = 512;
 
  private:
-  CPU processor;
-  Memory ram;
-  HardDrive hd;
+  [[no_unique_address]] CPU processor{};
+  [[no_unique_address]] Memory ram{};
+  [[no_unique_address]] HardDrive hd{};
 };
 
 int main() {

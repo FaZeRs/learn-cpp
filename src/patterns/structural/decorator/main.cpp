@@ -36,16 +36,18 @@ class Decorator : public Component {
 
 // Step 4: Create concrete decorators
 class ConcreteDecoratorA : public Decorator {
+  using Decorator::Decorator;
+
  public:
-  explicit ConcreteDecoratorA(Component* comp) : Decorator(comp) {}
   [[nodiscard]] std::string Operation() const override {
     return "ConcreteDecoratorA(" + Decorator::Operation() + ")";
   }
 };
 
 class ConcreteDecoratorB : public Decorator {
+  using Decorator::Decorator;
+
  public:
-  explicit ConcreteDecoratorB(Component* comp) : Decorator(comp) {}
   [[nodiscard]] std::string Operation() const override {
     return "ConcreteDecoratorB(" + Decorator::Operation() + ")";
   }

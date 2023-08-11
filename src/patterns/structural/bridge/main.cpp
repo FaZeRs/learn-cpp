@@ -43,8 +43,9 @@ class Abstraction {
 };
 
 class RefinedAbstraction : public Abstraction {
+  using Abstraction::Abstraction;
+
  public:
-  explicit RefinedAbstraction(Implementation* impl) : Abstraction(impl) {}
   void operation() override {
     std::cout << "Refined Abstraction: ";
     getImplementation()->operation();
