@@ -1,5 +1,5 @@
-#include <bits/chrono.h>
-
+// IWYU pragma: no_include <bits/chrono.h>
+#include <chrono>  // IWYU pragma: keep
 #include <cstdlib>
 #include <iostream>
 #include <mutex>
