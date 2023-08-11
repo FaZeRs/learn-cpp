@@ -39,6 +39,9 @@
         }
     },
     "remoteUser": "vscode",
+    "mounts": [
+        "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
+    ],
     "features": {
         "ghcr.io/devcontainers/features/git:1": {
             "version": "latest"
