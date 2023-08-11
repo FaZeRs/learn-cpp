@@ -1,8 +1,8 @@
+#include <cstdlib>
 #include <iostream>
 #include <list>
-#include <memory>
 #include <string>
-#include <vector>
+#include <utility>
 
 // Mediator interface
 class Mediator;

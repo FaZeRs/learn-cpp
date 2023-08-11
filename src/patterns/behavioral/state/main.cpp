@@ -1,5 +1,7 @@
+#include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <utility>
 
 // Abstract State class
 class LightState {
@@ -63,5 +65,5 @@ int main() {
   light.turnOff();  // Output: Turning off the light.
   light.turnOff();  // Output: Light is already Off!
 
-  return 0;
+  return EXIT_SUCCESS;
 }

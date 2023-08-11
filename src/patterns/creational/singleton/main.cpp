@@ -1,5 +1,9 @@
+#include <bits/chrono.h>
+
+#include <cstdlib>
 #include <iostream>
 #include <mutex>
+#include <string>
 #include <thread>
 
 class Logger {

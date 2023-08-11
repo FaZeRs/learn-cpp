@@ -1,5 +1,8 @@
+#include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <string>
+#include <utility>
 
 class Image {
  public:
@@ -62,5 +65,5 @@ int main() {
   // The image is already loaded, so it will only be displayed this time.
   image1->display();
 
-  return 0;
+  return EXIT_SUCCESS;
 }

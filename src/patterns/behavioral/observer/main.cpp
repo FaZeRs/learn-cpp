@@ -1,6 +1,9 @@
+#include <cstdlib>
 #include <iostream>
 #include <list>
 #include <string>
+#include <string_view>
+#include <utility>
 
 // Observer abstract class
 class Observer {

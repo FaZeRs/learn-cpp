@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <iostream>
 
 // Abstract base class defining template method and some abstract operations
@@ -59,5 +60,5 @@ int main() {
   ConcreteClass2 concreteClass2;
   concreteClass2.templateMethod();
 
-  return 0;
+  return EXIT_SUCCESS;
 }

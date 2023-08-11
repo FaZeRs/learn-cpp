@@ -1,5 +1,7 @@
+#include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <utility>
 
 // Receiver
 class Light {
@@ -29,7 +31,7 @@ class Command {
 // Concrete Command
 class LightOnCommand : public Command {
  public:
-  explicit LightOnCommand(const std::shared_ptr<Light> &l) : m_light(l) {}
+  explicit LightOnCommand(std::shared_ptr<Light> l) : m_light(std::move(l)) {}
   void execute() override { m_light->on(); }
 
  private:
@@ -39,7 +41,7 @@ class LightOnCommand : public Command {
 // Concrete Command
 class LightOffCommand : public Command {
  public:
-  explicit LightOffCommand(const std::shared_ptr<Light> &l) : m_light(l) {}
+  explicit LightOffCommand(std::shared_ptr<Light> l) : m_light(std::move(l)) {}
   void execute() override { m_light->off(); }
 
  private:
@@ -68,5 +70,5 @@ int main() {
   remote.pressButton();
   light->print();
 
-  return 0;
+  return EXIT_SUCCESS;
 }

@@ -1,4 +1,8 @@
+#include <cstdint>
+#include <cstdlib>
 #include <iostream>
+#include <string>
+#include <utility>
 
 class CPU {
  public:

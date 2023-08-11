@@ -1,6 +1,6 @@
+#include <cstdlib>
 #include <iostream>
 #include <memory>
-#include <string>
 #include <unordered_map>
 
 enum class RACE { FEDERATION, KLINGON, ANDORIAN, KELPIEN };

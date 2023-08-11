@@ -1,6 +1,9 @@
+#include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <string>
 #include <unordered_map>
+#include <utility>
 
 class Flyweight {
  public:

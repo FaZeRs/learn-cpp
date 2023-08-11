@@ -1,10 +1,10 @@
+#include <cstdlib>
 #include <iostream>
-#include <memory>
-#include <sstream>
+#include <sstream>  // IWYU pragma: keep
 #include <string>
+#include <string_view>
+#include <utility>
 #include <vector>
-
-class HtmlBuilder;
 
 class HtmlElement {
   std::string m_name;

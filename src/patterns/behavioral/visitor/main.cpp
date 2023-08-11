@@ -1,6 +1,7 @@
 #define _USE_MATH_DEFINES
 
 #include <cmath>
+#include <cstdlib>
 #include <iostream>
 
 // Forward declaration for the Visitor class
@@ -106,7 +107,7 @@ int main() {
   std::cout << "Perimeter of rectangle: " << perimeter_visitor.getResult()
             << std::endl;
 
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 void Circle::accept(ShapeVisitor& visitor) { visitor.visit(*this); }

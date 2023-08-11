@@ -1,7 +1,5 @@
 #include <iostream>
 #include <memory>
-#include <string>
-#include <vector>
 
 enum class ShapeType { Circle, Square };
 

@@ -1,6 +1,12 @@
 #include <algorithm>
+#include <cstdlib>
+#include <functional>
 #include <iostream>
+#include <iterator>
 #include <memory>
+#include <string>
+#include <string_view>
+#include <utility>
 
 class Strategy {
  public:
@@ -67,5 +73,5 @@ void clientCode() {
 
 int main() {
   clientCode();
-  return 0;
+  return EXIT_SUCCESS;
 }

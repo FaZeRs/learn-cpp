@@ -1,5 +1,8 @@
+#include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <string>
+#include <utility>
 #include <vector>
 
 // 1. Aggregate
@@ -23,8 +26,8 @@ class BookCollection {
 // 2. Iterator
 class BookIterator {
  public:
-  explicit BookIterator(const std::shared_ptr<BookCollection>& collection)
-      : m_collection(collection) {}
+  explicit BookIterator(std::shared_ptr<BookCollection> collection)
+      : m_collection(std::move(collection)) {}
 
   [[nodiscard]] bool hasNext() const {
     return m_current_index < m_collection->size();
@@ -55,5 +58,5 @@ int main() {
     std::cout << iterator.next() << std::endl;
   }
 
-  return 0;
+  return EXIT_SUCCESS;
 }
