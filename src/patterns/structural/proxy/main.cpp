@@ -14,36 +14,38 @@ class Image {
 };
 
 class RealImage : public Image {
-  std::string filename;
-
  public:
-  explicit RealImage(std::string filename) : filename(std::move(filename)) {
+  explicit RealImage(std::string filename) : m_filename(std::move(filename)) {
     loadFromDisk();
   }
 
   void display() override {
-    std::cout << "Displaying " << filename << std::endl;
+    std::cout << "Displaying " << m_filename << std::endl;
   }
 
  private:
   void loadFromDisk() const {
-    std::cout << "Loading " << filename << std::endl;
+    std::cout << "Loading " << m_filename << std::endl;
   }
+
+ private:
+  std::string m_filename;
 };
 
 class ProxyImage : public Image {
-  std::unique_ptr<RealImage> realImage;
-  std::string filename;
-
  public:
-  explicit ProxyImage(std::string filename) : filename(std::move(filename)) {}
+  explicit ProxyImage(std::string filename) : m_filename(std::move(filename)) {}
 
   void display() override {
-    if (!realImage) {
-      realImage = std::make_unique<RealImage>(filename);
+    if (!m_real_image) {
+      m_real_image = std::make_unique<RealImage>(m_filename);
     }
-    realImage->display();
+    m_real_image->display();
   }
+
+ private:
+  std::unique_ptr<RealImage> m_real_image;
+  std::string m_filename;
 };
 
 int main() {

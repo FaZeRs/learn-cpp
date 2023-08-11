@@ -10,35 +10,36 @@ class Implementation {
   Implementation(Implementation&&) = default;
   Implementation& operator=(Implementation&&) = default;
 
-  virtual void operationImpl() = 0;
+  virtual void operation() = 0;
 };
 
 class ConcreteImplementationA : public Implementation {
  public:
-  void operationImpl() override {
+  void operation() override {
     std::cout << "Concrete Implementation A" << std::endl;
   }
 };
 
 class ConcreteImplementationB : public Implementation {
  public:
-  void operationImpl() override {
+  void operation() override {
     std::cout << "Concrete Implementation B" << std::endl;
   }
 };
 
 class Abstraction {
  public:
-  explicit Abstraction(Implementation* impl) : impl(impl) {}
+  explicit Abstraction(Implementation* impl) : m_impl(impl) {}
   virtual ~Abstraction() = default;
   Abstraction(const Abstraction&) = default;
   Abstraction& operator=(const Abstraction&) = default;
   Abstraction(Abstraction&&) = default;
   Abstraction& operator=(Abstraction&&) = default;
   virtual void operation() = 0;
+  [[nodiscard]] Implementation* getImplementation() const { return m_impl; }
 
- protected:
-  class Implementation* impl;  // NOLINT
+ private:
+  Implementation* m_impl;
 };
 
 class RefinedAbstraction : public Abstraction {
@@ -46,7 +47,7 @@ class RefinedAbstraction : public Abstraction {
   explicit RefinedAbstraction(Implementation* impl) : Abstraction(impl) {}
   void operation() override {
     std::cout << "Refined Abstraction: ";
-    impl->operationImpl();
+    getImplementation()->operation();
   }
 };
 
