@@ -53,12 +53,6 @@ jobs:
             generator: "Visual Studio 17 2022"
             build_type: Debug
 
-          - compiler: gcc
-            gcov_executable: gcov
-
-          - compiler: llvm
-            gcov_executable: "llvm-cov gcov"
-
     steps:
       - name: Install dependencies
         if: ${{ contains(matrix.os, 'ubuntu') }}
