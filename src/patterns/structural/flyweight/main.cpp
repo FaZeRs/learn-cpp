@@ -3,61 +3,65 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include <utility>
 
-class Flyweight {
+class Soldier {
  public:
-  Flyweight() = default;
-  virtual ~Flyweight() = default;
-  Flyweight(const Flyweight &) = default;
-  Flyweight &operator=(const Flyweight &) = default;
-  Flyweight(Flyweight &&) = default;
-  Flyweight &operator=(Flyweight &&) = default;
-  virtual void operation(const std::string &extrinsic_state) = 0;
+  Soldier() = default;
+  virtual ~Soldier() = default;
+  Soldier(const Soldier &) = default;
+  Soldier &operator=(const Soldier &) = default;
+  Soldier(Soldier &&) = default;
+  Soldier &operator=(Soldier &&) = default;
+  virtual void display(int x, int y) = 0;
 };
 
-class ConcreteFlyweight : public Flyweight {
+class PrivateSoldier : public Soldier {
  public:
-  explicit ConcreteFlyweight(std::string state)
-      : m_intrinsic_state(std::move(state)) {}
-
-  void operation(const std::string &extrinsic_state) override {
-    std::cout << "ConcreteFlyweight with intrinsicState = " << m_intrinsic_state
-              << " operating with extrinsicState = " << extrinsic_state
+  void display(int x, int y) override {
+    std::cout << "Private soldier displayed at (" << x << ", " << y << ")"
               << std::endl;
   }
-
- private:
-  std::string m_intrinsic_state;
 };
 
-class FlyweightFactory {
+class CorporalSoldier : public Soldier {
  public:
-  std::shared_ptr<Flyweight> getFlyweight(const std::string &key) {
-    if (m_flyweights.find(key) == m_flyweights.end()) {
-      m_flyweights.try_emplace(key, std::make_shared<ConcreteFlyweight>(key));
+  void display(int x, int y) override {
+    std::cout << "Corporal soldier displayed at (" << x << ", " << y << ")"
+              << std::endl;
+  }
+};
+
+class SoldierFactory {
+ public:
+  std::shared_ptr<Soldier> getSoldier(const std::string &key) {
+    if (m_soldiers.find(key) == m_soldiers.end()) {
+      if (key == "Private") {
+        m_soldiers.try_emplace(key, std::make_shared<PrivateSoldier>());
+      } else if (key == "Corporal") {
+        m_soldiers.try_emplace(key, std::make_shared<CorporalSoldier>());
+      }
     }
-    return m_flyweights[key];
+    return m_soldiers[key];
   }
 
-  size_t getCount() const { return m_flyweights.size(); }
+  size_t getCount() const { return m_soldiers.size(); }
 
  private:
-  std::unordered_map<std::string, std::shared_ptr<Flyweight>> m_flyweights;
+  std::unordered_map<std::string, std::shared_ptr<Soldier>> m_soldiers;
 };
 
 int main() {
-  FlyweightFactory factory;
+  SoldierFactory factory;
 
-  auto flyweightA = factory.getFlyweight("A");
-  auto flyweightB = factory.getFlyweight("B");
-  auto flyweightA2 = factory.getFlyweight("A");
+  auto soldierA = factory.getSoldier("Private");
+  auto soldierB = factory.getSoldier("Corporal");
+  auto soldierA2 = factory.getSoldier("Private");
 
-  flyweightA->operation("test1");
-  flyweightB->operation("test2");
-  flyweightA2->operation("test3");
+  soldierA->display(10, 20);
+  soldierB->display(30, 40);
+  soldierA2->display(60, 70);
 
-  std::cout << "Number of flyweights: " << factory.getCount() << std::endl;
+  std::cout << "Number of soldiers: " << factory.getCount() << std::endl;
 
   return EXIT_SUCCESS;
 }

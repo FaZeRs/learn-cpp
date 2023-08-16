@@ -1,77 +1,62 @@
-#include <algorithm>
 #include <cstdlib>
-#include <functional>
 #include <iostream>
-#include <iterator>
 #include <memory>
-#include <string>
-#include <string_view>
-#include <utility>
 
-class Strategy {
+class DiscountStrategy {
  public:
-  Strategy() = default;
-  virtual ~Strategy() = default;
-  Strategy(const Strategy&) = default;
-  Strategy& operator=(const Strategy&) = default;
-  Strategy(Strategy&&) = default;
-  Strategy& operator=(Strategy&&) = default;
+  DiscountStrategy() = default;
+  virtual ~DiscountStrategy() = default;
+  DiscountStrategy(const DiscountStrategy&) = default;
+  DiscountStrategy& operator=(const DiscountStrategy&) = default;
+  DiscountStrategy(DiscountStrategy&&) = default;
+  DiscountStrategy& operator=(DiscountStrategy&&) = default;
 
-  [[nodiscard]] virtual std::string doAlgorithm(
-      std::string_view data) const = 0;
+  virtual double applyDiscount(double price) = 0;
 };
 
-class Context {
+class NoDiscount : public DiscountStrategy {
+ public:
+  double applyDiscount(double price) override {
+    return price;  // No discount
+  }
+};
+
+class SeasonalDiscount : public DiscountStrategy {
+ public:
+  double applyDiscount(double price) override {
+    return price * 0.90;  // 10% discount
+  }
+};
+
+class FlatDiscount : public DiscountStrategy {
+ public:
+  double applyDiscount(double price) override {
+    return price - 20;  // Subtract a flat amount
+  }
+};
+
+class ShoppingCart {
+ public:
+  explicit ShoppingCart(DiscountStrategy* strategy) : m_strategy(strategy) {}
+
+  double checkout(double price) { return m_strategy->applyDiscount(price); }
+
  private:
-  std::unique_ptr<Strategy> strategy_;
-
- public:
-  explicit Context(std::unique_ptr<Strategy>&& strategy = {})
-      : strategy_(std::move(strategy)) {}
-  void set_strategy(std::unique_ptr<Strategy>&& strategy) {
-    strategy_ = std::move(strategy);
-  }
-
-  void doSomeBusinessLogic() const {
-    if (strategy_) {
-      std::cout << "Context: Sorting data using the strategy" << std::endl;
-      std::string result = strategy_->doAlgorithm("aecbd");
-      std::cout << result << std::endl;
-    } else {
-      std::cout << "Context: Strategy isn't set" << std::endl;
-    }
-  }
+  std::unique_ptr<DiscountStrategy> m_strategy;
 };
-
-class ConcreteStrategyA : public Strategy {
- public:
-  [[nodiscard]] std::string doAlgorithm(std::string_view data) const override {
-    std::string result(data);
-    std::sort(std::begin(result), std::end(result));
-
-    return result;
-  }
-};
-class ConcreteStrategyB : public Strategy {
-  [[nodiscard]] std::string doAlgorithm(std::string_view data) const override {
-    std::string result(data);
-    std::sort(std::begin(result), std::end(result), std::greater<>());
-
-    return result;
-  }
-};
-
-void clientCode() {
-  Context context(std::make_unique<ConcreteStrategyA>());
-  std::cout << "Client: Strategy is set to normal sorting." << std::endl;
-  context.doSomeBusinessLogic();
-  std::cout << std::endl;
-  std::cout << "Client: Strategy is set to reverse sorting." << std::endl;
-  context.set_strategy(std::make_unique<ConcreteStrategyB>());
-  context.doSomeBusinessLogic();
-}
 
 int main() {
-  clientCode();
+  ShoppingCart cart_with_no_discount(new NoDiscount());
+  std::cout << "Total price with no discount: "
+            << cart_with_no_discount.checkout(100) << std::endl;
+
+  ShoppingCart cart_with_seasonal_discount(new SeasonalDiscount());
+  std::cout << "Total price with seasonal discount: "
+            << cart_with_seasonal_discount.checkout(100) << std::endl;
+
+  ShoppingCart cart_with_flat_discount(new FlatDiscount());
+  std::cout << "Total price with flat discount: "
+            << cart_with_flat_discount.checkout(100) << std::endl;
+
   return EXIT_SUCCESS;
 }

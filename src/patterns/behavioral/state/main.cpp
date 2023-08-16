@@ -3,67 +3,105 @@
 #include <memory>
 #include <utility>
 
-// Abstract State class
-class LightState {
- public:
-  LightState() = default;
-  virtual ~LightState() = default;
-  LightState(const LightState&) = default;
-  LightState& operator=(const LightState&) = default;
-  LightState(LightState&&) = default;
-  LightState& operator=(LightState&&) = default;
+class MusicPlayer;
 
-  virtual void turnOn() = 0;
-  virtual void turnOff() = 0;
+class PlayerState {
+ public:
+  PlayerState() = default;
+  virtual ~PlayerState() = default;
+  PlayerState(const PlayerState &) = default;
+  PlayerState &operator=(const PlayerState &) = default;
+  PlayerState(PlayerState &&) = default;
+  PlayerState &operator=(PlayerState &&) = default;
+
+  virtual void play(MusicPlayer &player) = 0;
+  virtual void pause(MusicPlayer &player) = 0;
+  virtual void stop(MusicPlayer &player) = 0;
 };
 
-// Concrete State classes
-class OnState : public LightState {
+class MusicPlayer {
  public:
-  void turnOn() override { std::cout << "Light is already On!" << std::endl; }
-
-  void turnOff() override {
-    std::cout << "Turning off the light." << std::endl;
+  MusicPlayer();
+  void setState(std::unique_ptr<PlayerState> new_state) {
+    m_state = std::move(new_state);
   }
-};
-
-class OffState : public LightState {
- public:
-  void turnOn() override { std::cout << "Turning on the light." << std::endl; }
-
-  void turnOff() override { std::cout << "Light is already Off!" << std::endl; }
-};
-
-// Context class
-class LightSwitch {
- public:
-  LightSwitch() : m_state(new OffState) {}
-
-  void setState(std::unique_ptr<LightState> newState) {
-    m_state = std::move(newState);
-  }
-
-  void turnOn() {
-    m_state->turnOn();
-    setState(std::make_unique<OnState>());
-  }
-
-  void turnOff() {
-    m_state->turnOff();
-    setState(std::make_unique<OffState>());
-  }
+  void play() { m_state->play(*this); }
+  void pause() { m_state->pause(*this); }
+  void stop() { m_state->stop(*this); }
 
  private:
-  std::unique_ptr<LightState> m_state;
+  std::unique_ptr<PlayerState> m_state;
 };
 
-int main() {
-  LightSwitch light;
+class PlayingState : public PlayerState {
+ public:
+  void play(MusicPlayer &player) override;
+  void pause(MusicPlayer &player) override;
+  void stop(MusicPlayer &player) override;
+};
 
-  light.turnOn();   // Output: Turning on the light.
-  light.turnOn();   // Output: Light is already On!
-  light.turnOff();  // Output: Turning off the light.
-  light.turnOff();  // Output: Light is already Off!
+class PausedState : public PlayerState {
+ public:
+  void play(MusicPlayer &player) override;
+  void pause(MusicPlayer &player) override;
+  void stop(MusicPlayer &player) override;
+};
+
+class StoppedState : public PlayerState {
+ public:
+  void play(MusicPlayer &player) override;
+  void pause(MusicPlayer &player) override;
+  void stop(MusicPlayer &player) override;
+};
+
+MusicPlayer::MusicPlayer() : m_state(std::make_unique<StoppedState>()) {}
+
+void PlayingState::play(MusicPlayer & /*player*/) {
+  std::cout << "Already playing." << std::endl;
+}
+
+void PlayingState::pause(MusicPlayer &player) {
+  std::cout << "Music paused." << std::endl;
+  player.setState(std::make_unique<PausedState>());
+}
+
+void PlayingState::stop(MusicPlayer &player) {
+  std::cout << "Music stopped." << std::endl;
+  player.setState(std::make_unique<StoppedState>());
+}
+
+void PausedState::play(MusicPlayer &player) {
+  std::cout << "Resuming music." << std::endl;
+  player.setState(std::make_unique<PlayingState>());
+}
+
+void PausedState::pause(MusicPlayer & /*player*/) {
+  std::cout << "Already paused." << std::endl;
+}
+
+void PausedState::stop(MusicPlayer &player) {
+  std::cout << "Music stopped." << std::endl;
+  player.setState(std::make_unique<StoppedState>());
+}
+
+void StoppedState::play(MusicPlayer &player) {
+  std::cout << "Playing music." << std::endl;
+  player.setState(std::make_unique<PlayingState>());
+}
+
+void StoppedState::pause(MusicPlayer & /*player*/) {
+  std::cout << "Can't pause when stopped." << std::endl;
+}
+
+void StoppedState::stop(MusicPlayer & /*player*/) {
+  std::cout << "Already stopped." << std::endl;
+}
+
+int main() {
+  MusicPlayer player;
+  player.play();
+  player.pause();
+  player.stop();
 
   return EXIT_SUCCESS;
 }

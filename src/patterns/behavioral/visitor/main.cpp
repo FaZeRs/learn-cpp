@@ -86,6 +86,10 @@ class PerimeterVisitor : public ShapeVisitor {
   double m_result = 0.0;
 };
 
+void Circle::accept(ShapeVisitor& visitor) { visitor.visit(*this); }
+
+void Rectangle::accept(ShapeVisitor& visitor) { visitor.visit(*this); }
+
 int main() {
   Circle circle(5);
   Rectangle rectangle(4, 6);
@@ -109,7 +113,3 @@ int main() {
 
   return EXIT_SUCCESS;
 }
-
-void Circle::accept(ShapeVisitor& visitor) { visitor.visit(*this); }
-
-void Rectangle::accept(ShapeVisitor& visitor) { visitor.visit(*this); }

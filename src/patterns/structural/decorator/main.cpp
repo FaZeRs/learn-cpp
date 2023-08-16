@@ -2,70 +2,72 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <utility>
 
-// Step 1: Define the interface for the core functionality
-class Component {
+// Component
+class Beverage {
  public:
-  Component() = default;
-  virtual ~Component() = default;
-  Component(const Component&) = default;
-  Component& operator=(const Component&) = default;
-  Component(Component&&) = default;
-  Component& operator=(Component&&) = default;
-  [[nodiscard]] virtual std::string Operation() const = 0;
+  Beverage() = default;
+  virtual ~Beverage() = default;
+  Beverage(const Beverage&) = default;
+  Beverage& operator=(const Beverage&) = default;
+  Beverage(Beverage&&) = default;
+  Beverage& operator=(Beverage&&) = default;
+
+  [[nodiscard]] virtual double cost() const = 0;
+  [[nodiscard]] virtual std::string description() const = 0;
 };
 
-// Step 2: Create concrete components
-class ConcreteComponent : public Component {
+// ConcreteComponent
+class Coffee : public Beverage {
  public:
-  [[nodiscard]] std::string Operation() const override {
-    return "ConcreteComponent";
-  }
+  [[nodiscard]] double cost() const override { return 1.0; }
+  [[nodiscard]] std::string description() const override { return "Coffee"; }
 };
 
-// Step 3: Create the base decorator
-class Decorator : public Component {
+// Decorator
+class BeverageDecorator : public Beverage {
  public:
-  explicit Decorator(Component* comp) : m_component(comp) {}
-  [[nodiscard]] std::string Operation() const override {
-    return m_component->Operation();
-  }
+  explicit BeverageDecorator(std::unique_ptr<Beverage> b)
+      : m_beverage(std::move(b)) {}
+
+  [[nodiscard]] Beverage* beverage() const { return m_beverage.get(); }
 
  private:
-  Component* m_component;
+  std::unique_ptr<Beverage> m_beverage;
 };
 
-// Step 4: Create concrete decorators
-class ConcreteDecoratorA : public Decorator {
-  using Decorator::Decorator;
-
+// ConcreteDecorators
+class Milk : public BeverageDecorator {
  public:
-  [[nodiscard]] std::string Operation() const override {
-    return "ConcreteDecoratorA(" + Decorator::Operation() + ")";
+  explicit Milk(std::unique_ptr<Beverage> b)
+      : BeverageDecorator(std::move(b)) {}
+  [[nodiscard]] double cost() const override {
+    return 0.2 + beverage()->cost();
+  }
+  [[nodiscard]] std::string description() const override {
+    return beverage()->description() + ", Milk";
   }
 };
 
-class ConcreteDecoratorB : public Decorator {
-  using Decorator::Decorator;
-
+class Sugar : public BeverageDecorator {
  public:
-  [[nodiscard]] std::string Operation() const override {
-    return "ConcreteDecoratorB(" + Decorator::Operation() + ")";
+  explicit Sugar(std::unique_ptr<Beverage> b)
+      : BeverageDecorator(std::move(b)) {}
+  [[nodiscard]] double cost() const override {
+    return 0.1 + beverage()->cost();
+  }
+  [[nodiscard]] std::string description() const override {
+    return beverage()->description() + ", Sugar";
   }
 };
 
-// Client code
 int main() {
-  std::unique_ptr<Component> simple = std::make_unique<ConcreteComponent>();
-  std::cout << "Simple component: " << simple->Operation() << std::endl;
+  std::unique_ptr<Beverage> coffee = std::make_unique<Coffee>();
+  coffee = std::make_unique<Milk>(std::move(coffee));
+  coffee = std::make_unique<Sugar>(std::move(coffee));
 
-  std::unique_ptr<Component> decoratorA =
-      std::make_unique<ConcreteDecoratorA>(simple.get());
-  std::cout << "A decorated: " << decoratorA->Operation() << std::endl;
-
-  std::unique_ptr<Component> decoratorB =
-      std::make_unique<ConcreteDecoratorB>(decoratorA.get());
-  std::cout << "B decorated A: " << decoratorB->Operation() << std::endl;
+  std::cout << coffee->description() << " - $" << coffee->cost() << std::endl;
 
   return EXIT_SUCCESS;
 }

@@ -13,6 +13,7 @@ class Widget {
   Widget &operator=(const Widget &) = default;
   Widget(Widget &&) = default;
   Widget &operator=(Widget &&) = default;
+
   virtual void draw() = 0;
 };
 

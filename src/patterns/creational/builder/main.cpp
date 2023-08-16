@@ -1,61 +1,99 @@
 #include <cstdlib>
 #include <iostream>
-#include <sstream>  // IWYU pragma: keep
 #include <string>
 #include <string_view>
-#include <utility>
-#include <vector>
 
-class HtmlElement {
-  std::string m_name;
-  std::string m_text;
-  std::vector<HtmlElement> m_elements;
-  constexpr static size_t m_indent_size = 4;
-
-  HtmlElement() = default;
-  HtmlElement(std::string name, std::string text)
-      : m_name(std::move(name)), m_text(std::move(text)) {}
-  friend class HtmlBuilder;
-
+// Product
+class Computer {
  public:
-  std::string str(size_t indent = 0) {
-    std::ostringstream oss;
-    oss << std::string(m_indent_size * indent, ' ') << "<" << m_name << ">"
-        << std::endl;
+  void setCPU(const std::string_view& cpu) { m_cpu = cpu; }
+  void setRAM(const std::string_view& ram) { m_ram = ram; }
+  void setStorage(const std::string_view& storage) { m_storage = storage; }
 
-    if (m_text.size()) {
-      oss << std::string(m_indent_size * (indent + 1), ' ') << m_text
-          << std::endl;
-    }
-
-    for (auto &element : m_elements) oss << element.str(indent + 1);
-
-    oss << std::string(m_indent_size * indent, ' ') << "</" << m_name << ">"
-        << std::endl;
-    return oss.str();
+  void show() const {
+    std::cout << "CPU: " << m_cpu << "\n"
+              << "RAM: " << m_ram << "\n"
+              << "Storage: " << m_storage << "\n";
   }
+
+ private:
+  std::string m_cpu;
+  std::string m_ram;
+  std::string m_storage;
 };
 
-class HtmlBuilder {
-  HtmlElement m_root;
-
+// Abstract Builder
+class ComputerBuilder {
  public:
-  explicit HtmlBuilder(const std::string_view &root_name) {
-    m_root.m_name = root_name;
+  ComputerBuilder() = default;
+  virtual ~ComputerBuilder() = default;
+  ComputerBuilder(const ComputerBuilder&) = default;
+  ComputerBuilder& operator=(const ComputerBuilder&) = default;
+  ComputerBuilder(ComputerBuilder&&) = default;
+  ComputerBuilder& operator=(ComputerBuilder&&) = default;
+
+  virtual void buildCPU() = 0;
+  virtual void buildRAM() = 0;
+  virtual void buildStorage() = 0;
+  virtual Computer getComputer() = 0;
+};
+
+// Concrete Builder
+class GamingComputerBuilder : public ComputerBuilder {
+ public:
+  void buildCPU() override { m_computer.setCPU("Gaming CPU"); }
+  void buildRAM() override { m_computer.setRAM("16GB DDR4"); }
+  void buildStorage() override { m_computer.setStorage("1TB SSD"); }
+
+  Computer getComputer() override { return m_computer; }
+
+ private:
+  Computer m_computer;
+};
+
+class LaptopComputerBuilder : public ComputerBuilder {
+ public:
+  void buildCPU() override { m_computer.setCPU("Laptop CPU"); }
+  void buildRAM() override { m_computer.setRAM("8GB DDR3"); }
+  void buildStorage() override { m_computer.setStorage("256GB SSD"); }
+
+  Computer getComputer() override { return m_computer; }
+
+ private:
+  Computer m_computer;
+};
+
+// Director
+class Engineer {
+ public:
+  Engineer() = default;
+  void setBuilder(ComputerBuilder* builder) { m_builder = builder; }
+  void constructComputer() {
+    m_builder->buildCPU();
+    m_builder->buildRAM();
+    m_builder->buildStorage();
   }
-  HtmlBuilder &add_child(const std::string &child_name,
-                         const std::string &content) {
-    m_root.m_elements.emplace_back(HtmlElement{child_name, content});
-    return *this;
-  }
-  std::string str() { return m_root.str(); }
-  explicit operator HtmlElement() const { return m_root; }
+
+ private:
+  ComputerBuilder* m_builder{nullptr};
 };
 
 int main() {
-  auto builder = HtmlBuilder{"ul"};
-  builder.add_child("li", "hello").add_child("li", "world");
-  std::cout << builder.str() << std::endl;
+  Engineer engineer;
+  GamingComputerBuilder gaming_builder;
+
+  engineer.setBuilder(&gaming_builder);
+  engineer.constructComputer();
+  Computer gaming_computer = gaming_builder.getComputer();
+  gaming_computer.show();
+
+  std::cout << std::endl;
+
+  LaptopComputerBuilder laptop_builder;
+  engineer.setBuilder(&laptop_builder);
+  engineer.constructComputer();
+  Computer laptop_computer = laptop_builder.getComputer();
+  laptop_computer.show();
 
   return EXIT_SUCCESS;
 }

@@ -1,82 +1,90 @@
+#include <algorithm>
 #include <cstdlib>
 #include <iostream>
-#include <list>
-#include <string>
-#include <string_view>
+#include <memory>
 #include <utility>
+#include <vector>
 
-// Observer abstract class
+// Forward declaration
+class Observer;
+
+// Subject
+class WeatherData {
+ public:
+  void registerObserver(Observer *o) { m_observers.push_back(o); }
+  void removeObserver(Observer *o) {
+    m_observers.erase(std::remove(m_observers.begin(), m_observers.end(), o),
+                      m_observers.end());
+  }
+  void notifyObservers();
+  void measurementsChanged() { notifyObservers(); }
+  void setMeasurements(float t, float h, float p) {
+    m_temperature = t;
+    m_humidity = h;
+    m_pressure = p;
+    measurementsChanged();
+  }
+
+ private:
+  std::vector<Observer *> m_observers;
+  float m_temperature = 0.0;
+  float m_humidity = 0.0;
+  float m_pressure = 0.0;
+};
+
+// Observer Interface
 class Observer {
  public:
   Observer() = default;
   virtual ~Observer() = default;
-  Observer(const Observer&) = default;
-  Observer& operator=(const Observer&) = default;
-  Observer(Observer&&) = default;
-  Observer& operator=(Observer&&) = default;
-
-  virtual void update(const std::string& message) = 0;
+  Observer(const Observer &) = default;
+  Observer &operator=(const Observer &) = default;
+  Observer(Observer &&) = default;
+  Observer &operator=(Observer &&) = default;
+  virtual void update(float temperature, float humidity, float pressure) = 0;
 };
 
-// ConcreteObserver class
-class ConcreteObserver : public Observer {
+// Concrete Observer
+class CurrentConditionsDisplay : public Observer {
  public:
-  explicit ConcreteObserver(std::string name) : m_name(std::move(name)) {}
+  explicit CurrentConditionsDisplay(std::shared_ptr<WeatherData> weather_data)
+      : m_weather_data(std::move(weather_data)) {
+    m_weather_data->registerObserver(this);
+  }
 
-  void update(const std::string& message) override {
-    std::cout << "Observer " << m_name << " received message: " << message
-              << std::endl;
+  void update(float temperature, float humidity, float /*pressure*/) override {
+    m_temperature = temperature;
+    m_humidity = humidity;
+    display();
+  }
+
+  void display() const {
+    std::cout << "Current conditions: " << m_temperature << "F degrees and "
+              << m_humidity << "% humidity" << std::endl;
   }
 
  private:
-  std::string m_name;
+  std::shared_ptr<WeatherData> m_weather_data;
+  float m_temperature = 0.0;
+  float m_humidity = 0.0;
 };
 
-// Subject abstract class
-class Subject {
- public:
-  void addObserver(Observer* observer) { m_observers.emplace_back(observer); }
-
-  void removeObserver(Observer* observer) { m_observers.remove(observer); }
-
-  void notifyObservers(const std::string& message) const {
-    for (Observer* observer : m_observers) {
-      observer->update(message);
-    }
+void WeatherData::notifyObservers() {
+  for (Observer *observer : m_observers) {
+    observer->update(m_temperature, m_humidity, m_pressure);
   }
-
- private:
-  std::list<Observer*> m_observers;
-};
-
-// ConcreteSubject class
-class ConcreteSubject : public Subject {
- public:
-  void setState(const std::string_view& newState) {
-    state = newState;
-    notifyObservers("State has been changed to: " + state);
-  }
-
-  [[nodiscard]] std::string getState() const { return state; }
-
- private:
-  std::string state;
-};
+}
 
 int main() {
-  ConcreteObserver observer1("A");
-  ConcreteObserver observer2("B");
-  ConcreteObserver observer3("C");
+  auto weather_data = std::make_shared<WeatherData>();
 
-  ConcreteSubject subject;
+  CurrentConditionsDisplay current_display(weather_data);
 
-  subject.addObserver(&observer1);
-  subject.addObserver(&observer2);
-  subject.addObserver(&observer3);
+  weather_data->setMeasurements(80, 65, 30.4f);
+  weather_data->setMeasurements(82, 70, 29.2f);
+  weather_data->setMeasurements(78, 90, 29.2f);
 
-  subject.setState("Initialized");
-  subject.setState("Running");
-  subject.setState("Stopped");
+  current_display.display();
 
   return EXIT_SUCCESS;
 }
