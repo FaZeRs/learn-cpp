@@ -53,6 +53,8 @@ class SoldierFactory {
 int main() {
   SoldierFactory factory;
 
+  std::cout << "Number of soldiers: " << factory.getCount() << std::endl;
+
   auto soldierA = factory.getSoldier("Private");
   auto soldierB = factory.getSoldier("Corporal");
   auto soldierA2 = factory.getSoldier("Private");
