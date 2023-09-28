@@ -1,62 +1,63 @@
-#include <cstdlib>
 #include <iostream>
-#include <memory>
-#include <string>
-#include <utility>
 #include <vector>
 
-// 1. Aggregate
-class BookCollection {
- public:
-  void addBook(const std::string& book) { m_books.emplace_back(book); }
+template <typename T>
+class Container;
 
-  [[nodiscard]] std::string getBook(size_t index) const {
-    if (index < m_books.size()) {
-      return m_books[index];
+template <typename T>
+class ContainerIterator {
+public:
+    explicit ContainerIterator(const Container<T>* container)
+        : m_container(container) {}
+
+    [[nodiscard]] bool hasNext() const {
+        return m_index < m_container->size();
     }
-    return "";
-  }
 
-  [[nodiscard]] size_t size() const { return m_books.size(); }
+    T& next() {
+        return m_container->get(m_index++);
+    }
 
- private:
-  std::vector<std::string> m_books;
+private:
+    const Container<T>* m_container;
+    std::size_t m_index{0};
 };
 
-// 2. Iterator
-class BookIterator {
- public:
-  explicit BookIterator(std::shared_ptr<BookCollection> collection)
-      : m_collection(std::move(collection)) {}
-
-  [[nodiscard]] bool hasNext() const {
-    return m_current_index < m_collection->size();
-  }
-
-  std::string next() {
-    if (hasNext()) {
-      return m_collection->getBook(m_current_index++);
+template <typename T>
+class Container {
+public:
+    void add(const T& item) {
+        m_items.emplace_back(item);
     }
-    return "";
-  }
 
- private:
-  std::shared_ptr<BookCollection> m_collection;
-  size_t m_current_index{0};
+    std::size_t size() const {
+        return m_items.size();
+    }
+
+    T& get(std::size_t index) const {
+        return m_items[index];
+    }
+
+    ContainerIterator<T> iterator() const {
+        return ContainerIterator<T>(this);
+    }
+
+private:
+    mutable std::vector<T> m_items;
 };
 
 int main() {
-  // Create a collection and populate it with books
-  auto collection = std::make_shared<BookCollection>();
-  collection->addBook("Design Patterns");
-  collection->addBook("Effective C++");
-  collection->addBook("The C++ Standard Library");
+    Container<int> container;
+    container.add(1);
+    container.add(2);
+    container.add(3);
 
-  // Iterate over the collection using the iterator
-  BookIterator iterator(collection);
-  while (iterator.hasNext()) {
-    std::cout << iterator.next() << std::endl;
-  }
+    ContainerIterator<int> it = container.iterator();
 
-  return EXIT_SUCCESS;
+    while (it.hasNext()) {
+        std::cout << it.next() << ' ';
+    }
+    std::cout << std::endl;
+
+    return 0;
 }
