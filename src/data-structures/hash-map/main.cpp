@@ -31,6 +31,18 @@ class HashMap {
       // NOLINTNEXTLINE
       : m_table(std::make_unique<std::shared_ptr<Node<K, V>>[]>(table_size)) {}
 
+  constexpr V& operator[](const K& key) {
+    uint64_t index = hashFunction(key);
+    auto curr = m_table[index];
+    while (curr) {
+      if (curr->key == key) {
+        return curr->value;
+      }
+      curr = curr->next;
+    }
+    throw std::runtime_error("Key not found");
+  }
+
   void put(const K& key, const V& value) {
     uint64_t index = hashFunction(key);
     auto& node = m_table[index];
@@ -48,19 +60,6 @@ class HashMap {
       }
       curr->next = std::make_shared<Node<K, V>>(key, value);
     }
-  }
-
-  bool get(const K& key, V& value) {
-    uint64_t index = hashFunction(key);
-    auto curr = m_table[index];
-    while (curr) {
-      if (curr->key == key) {
-        value = curr->value;
-        return true;
-      }
-      curr = curr->next;
-    }
-    return false;
   }
 
   void remove(const K& key) {
@@ -97,18 +96,17 @@ int main() {
   hmap.put(2, "2");
   hmap.put(3, "3");
 
-  std::string value;
-  bool result = hmap.get(2, value);
-  assert(result);
-  assert(value == "2");
-
-  result = hmap.get(3, value);
-  assert(result);
-  assert(value == "3");
+  assert(hmap[1] == "1");
+  assert(hmap[2] == "2");
+  assert(hmap[3] == "3");
 
   hmap.remove(3);
-  result = hmap.get(3, value);
-  assert(!result);
+  try {
+    hmap[3];
+    assert(false);
+  } catch (const std::runtime_error& e) {
+    assert(true);
+  }
 
   return EXIT_SUCCESS;
 }
