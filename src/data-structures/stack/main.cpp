@@ -1,12 +1,11 @@
-#include <cstddef>
+#include <cstdlib>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <utility>
 
 template <typename T>
-class Node {
- public:
+struct Node {
   T data;
   std::unique_ptr<Node<T>> next{nullptr};
   explicit Node(const T &val) : data(val) {}
@@ -65,5 +64,5 @@ int main() {
   std::cout << "Top after pop: " << s.top() << std::endl;  // 2
   std::cout << "Size: " << s.size() << std::endl;          // 2
 
-  return 0;
+  return EXIT_SUCCESS;
 }

@@ -1,10 +1,10 @@
+#include <cstdlib>
 #include <iostream>
 #include <memory>
 #include <utility>
 
 template <typename T>
-class Node {
- public:
+struct Node {
   T data;
   std::unique_ptr<Node<T>> next{nullptr};
   explicit Node(const T &val) : data(val) {}
@@ -23,12 +23,12 @@ class Queue {
   [[nodiscard]] bool isEmpty() const { return m_front == nullptr; }
 
   void enqueue(T val) {
-    auto newNode = std::make_unique<Node<T>>(val);
+    auto new_node = std::make_unique<Node<T>>(val);
     if (isEmpty()) {
-      m_front = std::move(newNode);
+      m_front = std::move(new_node);
       m_rear = m_front.get();
     } else {
-      m_rear->next = std::move(newNode);
+      m_rear->next = std::move(new_node);
       m_rear = m_rear->next.get();
     }
   }
@@ -71,5 +71,5 @@ int main() {
   std::cout << "Queue elements after dequeue: ";
   q.display();
 
-  return 0;
+  return EXIT_SUCCESS;
 }

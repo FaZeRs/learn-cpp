@@ -1,3 +1,4 @@
+#include <cassert>
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
@@ -46,6 +47,8 @@ int main() {
   for (const auto &item : data) {
     std::cout << item << std::endl;
   }
+  assert(data[0] == "Hello");
+  assert(data.size() == 5);
 
   Array<int, 2> data2{};
   data2[0] = 2;
