@@ -27,22 +27,37 @@ class Square : public Shape {
   friend class Shape;
 };
 
-class ShapeFactory {
+class ShapeCreator {
  public:
-  static std::unique_ptr<Shape> create(const ShapeType& type) {
-    switch (type) {
-      case ShapeType::Circle:
-        return std::make_unique<Circle>();
-      case ShapeType::Square:
-        return std::make_unique<Square>();
-    }
-    return nullptr;
+  ShapeCreator() = default;
+  ShapeCreator(const ShapeCreator&) = default;
+  ShapeCreator(ShapeCreator&&) = delete;
+  ShapeCreator& operator=(const ShapeCreator&) = default;
+  ShapeCreator& operator=(ShapeCreator&&) = delete;
+  virtual ~ShapeCreator() = default;
+  virtual std::unique_ptr<Shape> create() = 0;
+};
+
+class CircleCreator : public ShapeCreator {
+ public:
+  std::unique_ptr<Shape> create() override {
+    return std::make_unique<Circle>();
+  }
+};
+
+class SquareCreator : public ShapeCreator {
+ public:
+  std::unique_ptr<Shape> create() override {
+    return std::make_unique<Square>();
   }
 };
 
 int main() {
-  std::unique_ptr<Shape> circle = ShapeFactory::create(ShapeType::Circle);
-  std::unique_ptr<Shape> square = ShapeFactory::create(ShapeType::Square);
+  std::unique_ptr<ShapeCreator> circle_creator = std::make_unique<CircleCreator>();
+  std::unique_ptr<Shape> circle = circle_creator->create();
   circle->draw();
+
+  std::unique_ptr<ShapeCreator> square_creator = std::make_unique<SquareCreator>();
+  std::unique_ptr<Shape> square = square_creator->create();
   square->draw();
 }
