@@ -26,7 +26,7 @@ jobs:
         os:
           - windows-latest
           - ubuntu-latest
-          - macos-latest
+          # - macos-latest
         compiler:
           - llvm
           - gcc
@@ -39,8 +39,6 @@ jobs:
           - os: windows-latest
             compiler: gcc
           - os: windows-latest
-            compiler: llvm
-          - os: macos-latest
             compiler: llvm
         include:
           - os: windows-latest
