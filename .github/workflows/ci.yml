@@ -41,7 +41,7 @@ jobs:
           - os: windows-latest
             compiler: llvm
           - os: macos-latest
-            compiler: gcc
+            compiler: llvm
         include:
           - os: windows-latest
             compiler: msvc
