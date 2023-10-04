@@ -105,7 +105,7 @@ int main() {
   try {
     hmap[3];
     assert(false);
-  } catch (const std::runtime_error& e) {
+  } catch (const std::runtime_error& /*e*/) {
     assert(true);
   }
 
