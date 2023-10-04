@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 
+// Component
 class Graphic {
  public:
   Graphic() = default;
@@ -15,16 +16,19 @@ class Graphic {
   virtual void draw() const = 0;
 };
 
+// Leaf
 class Circle : public Graphic {
  public:
   void draw() const override { std::cout << "Drawing Circle" << std::endl; }
 };
 
+// Leaf
 class Square : public Graphic {
  public:
   void draw() const override { std::cout << "Drawing Square" << std::endl; }
 };
 
+// Composite
 class GraphicGroup : public Graphic {
  public:
   void add(Graphic* graphic) { m_graphics.emplace_back(graphic); }

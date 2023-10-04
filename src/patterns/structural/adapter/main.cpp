@@ -5,6 +5,7 @@
 
 #define LEGACY
 
+// Adaptee
 class OldPrinter {
  public:
   void printDocument(const std::string &document) const {
@@ -16,6 +17,7 @@ class OldPrinter {
   std::string m_model{"HP LaserJet 1018"};
 };
 
+// Target
 class DocumentPrinter {
  public:
   DocumentPrinter() = default;
@@ -39,6 +41,7 @@ class ModernPrinter : public DocumentPrinter {
   std::string m_model{"HP LaserJet 2000"};
 };
 
+// Adapter
 class AdapterOldPrinter : public DocumentPrinter {
  public:
   void print(const std::string &document) const override {

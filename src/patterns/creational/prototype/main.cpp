@@ -21,6 +21,7 @@ constexpr const char *raceToString(RACE race) {
   }
 }
 
+// Prototype
 class SpaceShip {
  public:
   SpaceShip() = default;
@@ -34,6 +35,7 @@ class SpaceShip {
   virtual void print() const = 0;
 };
 
+// ConcretePrototype
 class KlingonShip : public SpaceShip {
  public:
   [[nodiscard]] std::unique_ptr<SpaceShip> clone() const override {
@@ -45,6 +47,7 @@ class KlingonShip : public SpaceShip {
   }
 };
 
+// ConcretePrototype
 class StarFleetShip : public SpaceShip {
  public:
   [[nodiscard]] std::unique_ptr<SpaceShip> clone() const override {
@@ -56,6 +59,7 @@ class StarFleetShip : public SpaceShip {
   }
 };
 
+// ConcretePrototype
 class AndorianShip : public SpaceShip {
  public:
   [[nodiscard]] std::unique_ptr<SpaceShip> clone() const override {
@@ -67,6 +71,7 @@ class AndorianShip : public SpaceShip {
   }
 };
 
+// Client
 class SpaceShipFactory {
  public:
   void init() {

@@ -5,6 +5,7 @@
 
 class MusicPlayer;
 
+// State
 class PlayerState {
  public:
   PlayerState() = default;
@@ -19,6 +20,7 @@ class PlayerState {
   virtual void stop(MusicPlayer &player) = 0;
 };
 
+// Context
 class MusicPlayer {
  public:
   MusicPlayer();
@@ -33,6 +35,7 @@ class MusicPlayer {
   std::unique_ptr<PlayerState> m_state;
 };
 
+// ConcreteState
 class PlayingState : public PlayerState {
  public:
   void play(MusicPlayer &player) override;
@@ -40,6 +43,7 @@ class PlayingState : public PlayerState {
   void stop(MusicPlayer &player) override;
 };
 
+// ConcreteState
 class PausedState : public PlayerState {
  public:
   void play(MusicPlayer &player) override;
@@ -47,6 +51,7 @@ class PausedState : public PlayerState {
   void stop(MusicPlayer &player) override;
 };
 
+// ConcreteState
 class StoppedState : public PlayerState {
  public:
   void play(MusicPlayer &player) override;

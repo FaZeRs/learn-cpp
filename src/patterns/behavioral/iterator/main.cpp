@@ -4,6 +4,7 @@
 template <typename T>
 class Container;
 
+// ConcreteIterator
 template <typename T>
 class ContainerIterator {
  public:
@@ -19,6 +20,7 @@ class ContainerIterator {
   std::size_t m_index{0};
 };
 
+// ConcreteAggregate
 template <typename T>
 class Container {
  public:

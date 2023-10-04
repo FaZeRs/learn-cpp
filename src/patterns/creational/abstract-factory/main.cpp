@@ -5,6 +5,7 @@
 
 #define LINUX
 
+// Abstract Product
 class Widget {
  public:
   Widget() = default;
@@ -17,24 +18,31 @@ class Widget {
   virtual void draw() = 0;
 };
 
+// Concrete Product
 class LinuxButton : public Widget {
  public:
   void draw() override { std::cout << "LinuxButton" << std::endl; }
 };
+
+// Concrete Product
 class LinuxMenu : public Widget {
  public:
   void draw() override { std::cout << "LinuxMenu" << std::endl; }
 };
 
+// Concrete Product
 class WindowsButton : public Widget {
  public:
   void draw() override { std::cout << "WindowsButton" << std::endl; }
 };
+
+// Concrete Product
 class WindowsMenu : public Widget {
  public:
   void draw() override { std::cout << "WindowsMenu" << std::endl; }
 };
 
+// Abstract Factory
 class Factory {
  public:
   Factory() = default;
@@ -47,6 +55,7 @@ class Factory {
   virtual std::unique_ptr<Widget> create_menu() = 0;
 };
 
+// Concrete Factory
 class LinuxFactory : public Factory {
  public:
   std::unique_ptr<Widget> create_button() override {
@@ -57,6 +66,7 @@ class LinuxFactory : public Factory {
   }
 };
 
+// Concrete Factory
 class WindowsFactory : public Factory {
  public:
   std::unique_ptr<Widget> create_button() override {
@@ -67,6 +77,7 @@ class WindowsFactory : public Factory {
   }
 };
 
+// Client
 class Client {
  public:
   explicit Client(std::shared_ptr<Factory> f) : m_factory(std::move(f)) {}

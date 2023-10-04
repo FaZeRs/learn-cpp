@@ -27,6 +27,7 @@ class DocumentReader {
   }
 };
 
+// ConcreteClass
 class PDFReader : public DocumentReader {
  public:
   void openDocument() override {
@@ -42,6 +43,7 @@ class PDFReader : public DocumentReader {
   }
 };
 
+// ConcreteClass
 class WordReader : public DocumentReader {
  public:
   void openDocument() override {

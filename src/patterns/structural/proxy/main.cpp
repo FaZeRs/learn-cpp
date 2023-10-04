@@ -4,6 +4,7 @@
 #include <string>
 #include <utility>
 
+// Subject
 class Image {
  public:
   Image() = default;
@@ -16,6 +17,7 @@ class Image {
   virtual void display() = 0;
 };
 
+// RealSubject
 class RealImage : public Image {
  public:
   explicit RealImage(std::string filename) : m_filename(std::move(filename)) {
@@ -34,6 +36,7 @@ class RealImage : public Image {
   }
 };
 
+// Proxy
 class ProxyImage : public Image {
  public:
   explicit ProxyImage(std::string filename) : m_filename(std::move(filename)) {}
@@ -53,8 +56,7 @@ class ProxyImage : public Image {
 int main() {
   std::unique_ptr<Image> image1 =
       std::make_unique<ProxyImage>("testImage1.jpg");
-  std::unique_ptr<Image> image2 =
-      std::make_unique<ProxyImage>("testImage2.jpg");
+  std::unique_ptr<Image> image2 = std::make_unique<RealImage>("testImage2.jpg");
 
   std::cout << "First call to display() method:" << std::endl;
   // Image will be loaded and displayed only when the display method is called.

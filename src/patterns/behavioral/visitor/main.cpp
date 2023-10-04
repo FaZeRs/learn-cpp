@@ -7,6 +7,7 @@
 // Forward declaration for the Visitor class
 class ShapeVisitor;
 
+// Element
 class Shape {
  public:
   Shape() = default;
@@ -19,6 +20,7 @@ class Shape {
   virtual void accept(ShapeVisitor& visitor) = 0;
 };
 
+// ConcreteElement
 class Circle : public Shape {
  public:
   explicit Circle(double radius) : m_radius(radius) {}
@@ -29,6 +31,7 @@ class Circle : public Shape {
   double m_radius;
 };
 
+// ConcreteElement
 class Rectangle : public Shape {
  public:
   Rectangle(double width, double height) : m_width(width), m_height(height) {}
@@ -41,6 +44,7 @@ class Rectangle : public Shape {
   double m_height;
 };
 
+// Visitor
 class ShapeVisitor {
  public:
   ShapeVisitor() = default;
@@ -54,6 +58,7 @@ class ShapeVisitor {
   virtual void visit(Rectangle& rectangle) = 0;
 };
 
+// ConcreteVisitor
 class AreaVisitor : public ShapeVisitor {
  public:
   [[nodiscard]] double getResult() const { return m_result; }
@@ -70,6 +75,7 @@ class AreaVisitor : public ShapeVisitor {
   double m_result = 0.0;
 };
 
+// ConcreteVisitor
 class PerimeterVisitor : public ShapeVisitor {
  public:
   [[nodiscard]] double getResult() const { return m_result; }

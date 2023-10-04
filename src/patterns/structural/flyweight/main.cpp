@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 
+// Flyweight
 class Soldier {
  public:
   Soldier() = default;
@@ -15,6 +16,7 @@ class Soldier {
   virtual void display(int x, int y) = 0;
 };
 
+// ConcreteFlyweight
 class PrivateSoldier : public Soldier {
  public:
   void display(int x, int y) override {
@@ -23,6 +25,7 @@ class PrivateSoldier : public Soldier {
   }
 };
 
+// ConcreteFlyweight
 class CorporalSoldier : public Soldier {
  public:
   void display(int x, int y) override {
@@ -31,6 +34,7 @@ class CorporalSoldier : public Soldier {
   }
 };
 
+// FlyweightFactory
 class SoldierFactory {
  public:
   std::shared_ptr<Soldier> getSoldier(const std::string &key) {

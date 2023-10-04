@@ -47,6 +47,7 @@ class Mediator {
   std::list<Colleague*> m_colleagues;
 };
 
+// ConcreteMediator
 class ChatRoom : public Mediator {
  public:
   void distributeMessage(Colleague* sender,
@@ -59,6 +60,7 @@ class ChatRoom : public Mediator {
   }
 };
 
+// ConcreteColleague
 class User : public Colleague {
  public:
   User(Mediator* m, std::string name) : Colleague(m), m_name(std::move(name)) {

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <memory>
 
+// Strategy
 class DiscountStrategy {
  public:
   DiscountStrategy() = default;
@@ -14,6 +15,7 @@ class DiscountStrategy {
   virtual double applyDiscount(double price) = 0;
 };
 
+// ConcreteStrategy
 class NoDiscount : public DiscountStrategy {
  public:
   double applyDiscount(double price) override {
@@ -21,6 +23,7 @@ class NoDiscount : public DiscountStrategy {
   }
 };
 
+// ConcreteStrategy
 class SeasonalDiscount : public DiscountStrategy {
  public:
   double applyDiscount(double price) override {
@@ -28,6 +31,7 @@ class SeasonalDiscount : public DiscountStrategy {
   }
 };
 
+// ConcreteStrategy
 class FlatDiscount : public DiscountStrategy {
  public:
   double applyDiscount(double price) override {
@@ -35,6 +39,7 @@ class FlatDiscount : public DiscountStrategy {
   }
 };
 
+// Context
 class ShoppingCart {
  public:
   explicit ShoppingCart(DiscountStrategy* strategy) : m_strategy(strategy) {}

@@ -35,6 +35,7 @@ class AbstractHandler : public Handler {
   Handler *m_next_handler{nullptr};
 };
 
+// ConcreteHandler
 class MonkeyHandler : public AbstractHandler {
  public:
   std::string Handle(const std::string &request) override {
@@ -46,6 +47,7 @@ class MonkeyHandler : public AbstractHandler {
   }
 };
 
+// ConcreteHandler
 class SquirrelHandler : public AbstractHandler {
  public:
   std::string Handle(const std::string &request) override {
@@ -57,6 +59,7 @@ class SquirrelHandler : public AbstractHandler {
   }
 };
 
+// ConcreteHandler
 class DogHandler : public AbstractHandler {
  public:
   std::string Handle(const std::string &request) override {
@@ -68,6 +71,7 @@ class DogHandler : public AbstractHandler {
   }
 };
 
+// Client
 void ClientCode(Handler &handler) {
   std::vector<std::string> food = {"Nut", "Banana", "Cup of coffee"};
   for (const std::string &f : food) {

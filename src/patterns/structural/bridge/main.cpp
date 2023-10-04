@@ -16,6 +16,7 @@ class Renderer {
   virtual void renderCircle(float x, float y, float radius) = 0;
 };
 
+// ConcreteImplementor
 class RasterRenderer : public Renderer {
  public:
   void renderCircle(float x, float y, float radius) override {
@@ -24,6 +25,7 @@ class RasterRenderer : public Renderer {
   }
 };
 
+// ConcreteImplementor
 class VectorRenderer : public Renderer {
  public:
   void renderCircle(float x, float y, float radius) override {
@@ -50,6 +52,7 @@ class Shape {
   std::shared_ptr<Renderer> m_renderer;
 };
 
+// RefinedAbstraction
 class Circle : public Shape {
  public:
   Circle(std::shared_ptr<Renderer> renderer, float x, float y, float radius)

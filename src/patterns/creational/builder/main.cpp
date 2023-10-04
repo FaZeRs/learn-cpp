@@ -51,6 +51,7 @@ class GamingComputerBuilder : public ComputerBuilder {
   Computer m_computer;
 };
 
+// Concrete Builder
 class LaptopComputerBuilder : public ComputerBuilder {
  public:
   void buildCPU() override { m_computer.setCPU("Laptop CPU"); }

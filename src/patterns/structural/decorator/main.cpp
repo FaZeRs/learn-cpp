@@ -37,7 +37,7 @@ class BeverageDecorator : public Beverage {
   std::unique_ptr<Beverage> m_beverage;
 };
 
-// ConcreteDecorators
+// ConcreteDecorator
 class Milk : public BeverageDecorator {
  public:
   explicit Milk(std::unique_ptr<Beverage> b)
@@ -50,6 +50,7 @@ class Milk : public BeverageDecorator {
   }
 };
 
+// ConcreteDecorator
 class Sugar : public BeverageDecorator {
  public:
   explicit Sugar(std::unique_ptr<Beverage> b)
@@ -64,9 +65,12 @@ class Sugar : public BeverageDecorator {
 
 int main() {
   std::unique_ptr<Beverage> coffee = std::make_unique<Coffee>();
-  coffee = std::make_unique<Milk>(std::move(coffee));
-  coffee = std::make_unique<Sugar>(std::move(coffee));
+  std::cout << coffee->description() << " - $" << coffee->cost() << std::endl;
 
+  coffee = std::make_unique<Milk>(std::move(coffee));
+  std::cout << coffee->description() << " - $" << coffee->cost() << std::endl;
+
+  coffee = std::make_unique<Sugar>(std::move(coffee));
   std::cout << coffee->description() << " - $" << coffee->cost() << std::endl;
 
   return EXIT_SUCCESS;
