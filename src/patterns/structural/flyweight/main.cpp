@@ -3,71 +3,76 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <utility>
 
 // Flyweight
-class Soldier {
+class CharacterStyle {
  public:
-  Soldier() = default;
-  virtual ~Soldier() = default;
-  Soldier(const Soldier &) = default;
-  Soldier &operator=(const Soldier &) = default;
-  Soldier(Soldier &&) = default;
-  Soldier &operator=(Soldier &&) = default;
-  virtual void display(int x, int y) = 0;
-};
+  CharacterStyle(std::string font, int size, std::string color)
+      : font_(std::move(font)), size_(size), color_(std::move(color)) {}
 
-// ConcreteFlyweight
-class PrivateSoldier : public Soldier {
- public:
-  void display(int x, int y) override {
-    std::cout << "Private soldier displayed at (" << x << ", " << y << ")"
-              << std::endl;
+  void print() const {
+    std::cout << "Font: " << font_ << ", Size: " << size_
+              << ", Color: " << color_ << std::endl;
   }
-};
 
-// ConcreteFlyweight
-class CorporalSoldier : public Soldier {
- public:
-  void display(int x, int y) override {
-    std::cout << "Corporal soldier displayed at (" << x << ", " << y << ")"
-              << std::endl;
-  }
+ private:
+  std::string font_;
+  int size_;
+  std::string color_;
 };
 
 // FlyweightFactory
-class SoldierFactory {
+class CharacterStyleFactory {
  public:
-  std::shared_ptr<Soldier> getSoldier(const std::string &key) {
-    if (m_soldiers.find(key) == m_soldiers.end()) {
-      if (key == "Private") {
-        m_soldiers.try_emplace(key, std::make_shared<PrivateSoldier>());
-      } else if (key == "Corporal") {
-        m_soldiers.try_emplace(key, std::make_shared<CorporalSoldier>());
-      }
+  std::shared_ptr<CharacterStyle> getStyle(const std::string& font, int size,
+                                           const std::string& color) {
+    std::string key = font + std::to_string(size) + color;
+    auto it = style_pool_.find(key);
+    if (it != style_pool_.end()) {
+      return it->second;
+    } else {
+      auto style = std::make_shared<CharacterStyle>(font, size, color);
+      style_pool_[key] = style;
+      return style;
     }
-    return m_soldiers[key];
   }
 
-  size_t getCount() const { return m_soldiers.size(); }
+ private:
+  std::unordered_map<std::string, std::shared_ptr<CharacterStyle>> style_pool_;
+};
+
+class Character {
+ public:
+  Character(char symbol, std::shared_ptr<CharacterStyle> style)
+      : symbol_(symbol), style_(std::move(style)) {}
+
+  void print() const {
+    std::cout << "Character: " << symbol_ << ", Style: ";
+    style_->print();
+  }
 
  private:
-  std::unordered_map<std::string, std::shared_ptr<Soldier>> m_soldiers;
+  char symbol_;
+  std::shared_ptr<CharacterStyle> style_;
 };
 
 int main() {
-  SoldierFactory factory;
+  CharacterStyleFactory style_factory;
 
-  std::cout << "Number of soldiers: " << factory.getCount() << std::endl;
+  // Obtain shared styles
+  auto style1 = style_factory.getStyle("Arial", 12, "Red");
+  auto style2 = style_factory.getStyle("Times New Roman", 14, "Blue");
 
-  auto soldierA = factory.getSoldier("Private");
-  auto soldierB = factory.getSoldier("Corporal");
-  auto soldierA2 = factory.getSoldier("Private");
+  // Create characters with shared styles
+  Character charA('A', style1);
+  Character charB('B', style1);  // Reuses the style of charA
+  Character charC('C', style2);
 
-  soldierA->display(10, 20);
-  soldierB->display(30, 40);
-  soldierA2->display(60, 70);
-
-  std::cout << "Number of soldiers: " << factory.getCount() << std::endl;
+  // Display characters and styles
+  charA.print();
+  charB.print();
+  charC.print();
 
   return EXIT_SUCCESS;
 }
