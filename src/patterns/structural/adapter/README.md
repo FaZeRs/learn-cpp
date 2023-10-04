@@ -1,7 +1,5 @@
 # Adapter Pattern
 
-Adapter is a structural design pattern that allows objects with incompatible interfaces to collaborate.
-
 ![Structure](structure.png)
 
 ## Intent:
