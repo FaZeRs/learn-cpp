@@ -19,6 +19,7 @@ function(enable_cache)
   endif()
 
   find_program(CACHE_BINARY NAMES ${CACHE_OPTION_VALUES})
+
   if(CACHE_BINARY)
     message(STATUS "${CACHE_BINARY} found and enabled")
     set(CMAKE_CXX_COMPILER_LAUNCHER

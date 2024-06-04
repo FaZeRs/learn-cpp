@@ -1,9 +1,10 @@
 # Default compilation flags.
 
-# Compile as C++20.
-if (NOT DEFINED CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 20)
+# Compile as C++23.
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 23)
 endif()
+
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -33,6 +34,6 @@ if(MSVC)
   add_definitions(/MP)
 endif()
 
-if (APPLE)
+if(APPLE)
   add_definitions("-stdlib=libc++ -std=c++${CMAKE_CXX_STANDARD}")
 endif()

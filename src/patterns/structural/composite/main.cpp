@@ -39,7 +39,7 @@ class GraphicGroup : public Graphic {
   }
 
   void draw() const override {
-    for (const auto& graphic : m_graphics) {
+    for (const auto* graphic : m_graphics) {
       graphic->draw();
     }
   }

@@ -41,8 +41,8 @@ class Vector {
 
   T *begin() noexcept { return m_data.get(); }
   [[nodiscard]] const T *begin() const noexcept { return m_data.get(); }
-  T *end() noexcept { return m_data.get() + m_size; }
-  [[nodiscard]] const T *end() const noexcept { return m_data.get() + m_size; }
+  T *end() noexcept { return static_cast<T*>(m_data.get()) + m_size; }
+  [[nodiscard]] const T *end() const noexcept { return static_cast<const T*>(m_data.get()) + m_size; }
 
   [[nodiscard]] T *data() noexcept { return m_data.get(); }
   [[nodiscard]] const T *data() const noexcept { return m_data.get(); }

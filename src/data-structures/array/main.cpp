@@ -34,7 +34,7 @@ class Array {
   [[nodiscard]] const T *end() const noexcept { return m_data + S; }
 
  private:
-  T m_data[S];  // NOLINT
+  T m_data[S]{};  // NOLINT
 };
 
 int main() {
