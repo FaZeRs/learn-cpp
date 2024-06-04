@@ -60,28 +60,28 @@ class BinaryTree {
     }
   }
 
-  void inOrderTraversal(const Node<T>* node) const {
+  static void inOrderTraversal(const Node<T>* node) {
     if (!node) return;
     inOrderTraversal(node->left.get());
     std::cout << node->data << ' ';
     inOrderTraversal(node->right.get());
   }
 
-  void preOrderTraversal(const Node<T>* node) const {
+  static void preOrderTraversal(const Node<T>* node) {
     if (!node) return;
     std::cout << node->data << ' ';
     preOrderTraversal(node->left.get());
     preOrderTraversal(node->right.get());
   }
 
-  void postOrderTraversal(const Node<T>* node) const {
+  static void postOrderTraversal(const Node<T>* node) {
     if (!node) return;
     postOrderTraversal(node->left.get());
     postOrderTraversal(node->right.get());
     std::cout << node->data << ' ';
   }
 
-  bool search(const T& value, const Node<T>* node) const {
+  static bool search(const T& value, const Node<T>* node) {
     if (!node) return false;
     if (value == node->data) return true;
     if (value < node->data) return search(value, node->left.get());
