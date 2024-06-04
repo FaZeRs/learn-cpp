@@ -101,7 +101,7 @@ class DoublyLinkedList {
 
     auto current = m_head.get();
     int i = 0;
-    while (current->next && i < pos) {
+    while (current && current->next && i < pos) {
       current = current->next.get();
       i++;
     }
