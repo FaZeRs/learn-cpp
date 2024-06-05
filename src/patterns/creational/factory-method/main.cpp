@@ -1,7 +1,7 @@
 #include <iostream>
 #include <memory>
 
-enum class ShapeType : std::uint8_t { Circle, Square };
+enum class ShapeType : uint8_t { Circle, Square };
 
 // Product
 class Shape {

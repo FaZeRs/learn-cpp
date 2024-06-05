@@ -3,7 +3,7 @@
 #include <memory>
 #include <unordered_map>
 
-enum class RACE : std::uint8_t { FEDERATION, KLINGON, ANDORIAN, KELPIEN };
+enum class RACE : uint8_t { FEDERATION, KLINGON, ANDORIAN, KELPIEN };
 
 constexpr const char *raceToString(RACE race) {
   switch (race) {
