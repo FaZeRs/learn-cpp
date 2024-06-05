@@ -104,18 +104,17 @@ int main() {
   PerimeterVisitor perimeter_visitor;
 
   circle.accept(area_visitor);
-  std::cout << "Area of circle: " << area_visitor.getResult() << std::endl;
+  std::cout << "Area of circle: " << area_visitor.getResult() << "\n";
 
   rectangle.accept(area_visitor);
-  std::cout << "Area of rectangle: " << area_visitor.getResult() << std::endl;
+  std::cout << "Area of rectangle: " << area_visitor.getResult() << "\n";
 
   circle.accept(perimeter_visitor);
-  std::cout << "Perimeter of circle: " << perimeter_visitor.getResult()
-            << std::endl;
+  std::cout << "Perimeter of circle: " << perimeter_visitor.getResult() << "\n";
 
   rectangle.accept(perimeter_visitor);
   std::cout << "Perimeter of rectangle: " << perimeter_visitor.getResult()
-            << std::endl;
+            << "\n";
 
   return EXIT_SUCCESS;
 }

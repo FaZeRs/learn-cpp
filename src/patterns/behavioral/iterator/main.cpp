@@ -47,7 +47,7 @@ int main() {
   while (it.hasNext()) {
     std::cout << it.next() << ' ';
   }
-  std::cout << std::endl;
+  std::cout << "\n";
 
   return 0;
 }

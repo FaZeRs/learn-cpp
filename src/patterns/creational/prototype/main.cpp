@@ -3,7 +3,7 @@
 #include <memory>
 #include <unordered_map>
 
-enum class RACE { FEDERATION, KLINGON, ANDORIAN, KELPIEN };
+enum class RACE : std::uint8_t { FEDERATION, KLINGON, ANDORIAN, KELPIEN };
 
 constexpr const char *raceToString(RACE race) {
   switch (race) {
@@ -42,9 +42,7 @@ class KlingonShip : public SpaceShip {
     return std::make_unique<KlingonShip>(*this);
   }
 
-  void print() const override {
-    std::cout << "This is KlingonShip" << std::endl;
-  }
+  void print() const override { std::cout << "This is KlingonShip\n"; }
 };
 
 // ConcretePrototype
@@ -54,9 +52,7 @@ class StarFleetShip : public SpaceShip {
     return std::make_unique<StarFleetShip>(*this);
   }
 
-  void print() const override {
-    std::cout << "This is StarFleetShip" << std::endl;
-  }
+  void print() const override { std::cout << "This is StarFleetShip\n"; }
 };
 
 // ConcretePrototype
@@ -66,9 +62,7 @@ class AndorianShip : public SpaceShip {
     return std::make_unique<AndorianShip>(*this);
   }
 
-  void print() const override {
-    std::cout << "This is AndorianShip" << std::endl;
-  }
+  void print() const override { std::cout << "This is AndorianShip\n"; }
 };
 
 // Client
@@ -84,7 +78,7 @@ class SpaceShipFactory {
   std::unique_ptr<SpaceShip> createSpaceShip(const RACE &race) {
     if (!m_space_ships.contains(race)) {
       std::cout << "SpaceShip not found for race: " << raceToString(race)
-                << std::endl;
+                << "\n";
       return nullptr;
     }
     return m_space_ships[race]->clone();

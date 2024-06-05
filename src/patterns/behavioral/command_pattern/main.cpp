@@ -9,7 +9,7 @@ class Light {
   void on() { m_is_on = true; }
   void off() { m_is_on = false; }
   void print() const {
-    std::cout << "Light is " << (m_is_on ? "ON" : "OFF") << std::endl;
+    std::cout << "Light is " << (m_is_on ? "ON" : "OFF") << "\n";
   }
 
  private:

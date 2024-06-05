@@ -53,15 +53,15 @@ class ShoppingCart {
 int main() {
   ShoppingCart cart_with_no_discount(new NoDiscount());
   std::cout << "Total price with no discount: "
-            << cart_with_no_discount.checkout(100) << std::endl;
+            << cart_with_no_discount.checkout(100) << "\n";
 
   ShoppingCart cart_with_seasonal_discount(new SeasonalDiscount());
   std::cout << "Total price with seasonal discount: "
-            << cart_with_seasonal_discount.checkout(100) << std::endl;
+            << cart_with_seasonal_discount.checkout(100) << "\n";
 
   ShoppingCart cart_with_flat_discount(new FlatDiscount());
   std::cout << "Total price with flat discount: "
-            << cart_with_flat_discount.checkout(100) << std::endl;
+            << cart_with_flat_discount.checkout(100) << "\n";
 
   return EXIT_SUCCESS;
 }

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <memory>
 
-enum class ShapeType { Circle, Square };
+enum class ShapeType : std::uint8_t { Circle, Square };
 
 // Product
 class Shape {
@@ -19,14 +19,14 @@ class Shape {
 // ConcreteProduct
 class Circle : public Shape {
  public:
-  void draw() override { std::cout << "I am circle" << std::endl; }
+  void draw() override { std::cout << "I am circle\n"; }
   friend class Shape;
 };
 
 // ConcreteProduct
 class Square : public Shape {
  public:
-  void draw() override { std::cout << "I am square" << std::endl; }
+  void draw() override { std::cout << "I am square\n"; }
   friend class Shape;
 };
 

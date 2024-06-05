@@ -17,11 +17,11 @@ set_project_warnings(project_warnings ${WARNINGS_AS_ERRORS} "" "" "")
 
 include(cmake/Sanitizers.cmake)
 enable_sanitizers(project_options
-        ${ENABLE_SANITIZER_ADDRESS}
-        ${ENABLE_SANITIZER_LEAK}
-        ${ENABLE_SANITIZER_UNDEFINED}
-        ${ENABLE_SANITIZER_THREAD}
-        ${ENABLE_SANITIZER_MEMORY})
+  ${ENABLE_SANITIZER_ADDRESS}
+  ${ENABLE_SANITIZER_LEAK}
+  ${ENABLE_SANITIZER_UNDEFINED}
+  ${ENABLE_SANITIZER_THREAD}
+  ${ENABLE_SANITIZER_MEMORY})
 
 if(ENABLE_CACHE)
   include(cmake/Cache.cmake)
@@ -29,6 +29,7 @@ if(ENABLE_CACHE)
 endif()
 
 include(cmake/StaticAnalyzers.cmake)
+
 if(ENABLE_CLANG_TIDY)
   enable_clang_tidy(project_options ${WARNINGS_AS_ERRORS})
 endif()
@@ -38,7 +39,7 @@ if(ENABLE_CPPCHECK)
 endif()
 
 if(ENABLE_INCLUDE_WHAT_YOU_USE)
-enable_include_what_you_use()
+  enable_include_what_you_use()
 endif()
 
 target_compile_features(project_options INTERFACE cxx_std_${CMAKE_CXX_STANDARD})

@@ -13,7 +13,7 @@ class CharacterStyle {
 
   void print() const {
     std::cout << "Font: " << font_ << ", Size: " << size_
-              << ", Color: " << color_ << std::endl;
+              << ", Color: " << color_ << "\n";
   }
 
  private:

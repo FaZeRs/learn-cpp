@@ -25,7 +25,7 @@ class Editor {
   // Restores the saved state
   void restore(const Memento& m) { m_text = m.getState(); }
 
-  void printContent() const { std::cout << m_text << std::endl; }
+  void printContent() const { std::cout << m_text << "\n"; }
 
  private:
   std::string m_text;
@@ -38,7 +38,7 @@ class Caretaker {
 
   void undo(Editor& editor) {
     if (m_mementos.empty()) {
-      std::cout << "Caretaker: No saved states to undo!" << std::endl;
+      std::cout << "Caretaker: No saved states to undo!\n";
       return;
     }
     m_mementos.pop_back();

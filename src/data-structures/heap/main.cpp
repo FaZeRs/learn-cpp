@@ -29,7 +29,7 @@ class MaxHeap {
     for (const auto& value : data) {
       std::cout << value << " ";
     }
-    std::cout << std::endl;
+    std::cout << "\n";
   }
 
  private:
@@ -63,11 +63,17 @@ class MaxHeap {
     }
   }
 
-  [[nodiscard]] static size_t parent(size_t index) noexcept { return (index - 1) / 2; }
+  [[nodiscard]] static size_t parent(size_t index) noexcept {
+    return (index - 1) / 2;
+  }
 
-  [[nodiscard]] static size_t left(size_t index) noexcept { return 2 * index + 1; }
+  [[nodiscard]] static size_t left(size_t index) noexcept {
+    return 2 * index + 1;
+  }
 
-  [[nodiscard]] static size_t right(size_t index) noexcept { return 2 * index + 2; }
+  [[nodiscard]] static size_t right(size_t index) noexcept {
+    return 2 * index + 2;
+  }
 };
 
 int main() {

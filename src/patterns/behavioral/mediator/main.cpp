@@ -68,12 +68,12 @@ class User : public Colleague {
   }
 
   void send(const std::string& message) override {
-    std::cout << m_name << " sends: " << message << std::endl;
+    std::cout << m_name << " sends: " << message << "\n";
     mediator()->distributeMessage(this, message);
   }
 
   void receive(const std::string& message) override {
-    std::cout << m_name << " received: " << message << std::endl;
+    std::cout << m_name << " received: " << message << "\n";
   }
 
  private:

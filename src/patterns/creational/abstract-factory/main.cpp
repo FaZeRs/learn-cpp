@@ -21,25 +21,25 @@ class Widget {
 // Concrete Product
 class LinuxButton : public Widget {
  public:
-  void draw() override { std::cout << "LinuxButton" << std::endl; }
+  void draw() override { std::cout << "LinuxButton\n"; }
 };
 
 // Concrete Product
 class LinuxMenu : public Widget {
  public:
-  void draw() override { std::cout << "LinuxMenu" << std::endl; }
+  void draw() override { std::cout << "LinuxMenu\n"; }
 };
 
 // Concrete Product
 class WindowsButton : public Widget {
  public:
-  void draw() override { std::cout << "WindowsButton" << std::endl; }
+  void draw() override { std::cout << "WindowsButton\n"; }
 };
 
 // Concrete Product
 class WindowsMenu : public Widget {
  public:
-  void draw() override { std::cout << "WindowsMenu" << std::endl; }
+  void draw() override { std::cout << "WindowsMenu\n"; }
 };
 
 // Abstract Factory

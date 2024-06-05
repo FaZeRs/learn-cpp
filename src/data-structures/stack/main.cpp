@@ -59,10 +59,10 @@ int main() {
   s.push(2);
   s.push(3);
 
-  std::cout << "Top: " << s.top() << std::endl;  // 3
+  std::cout << "Top: " << s.top() << "\n";  // 3
   s.pop();
-  std::cout << "Top after pop: " << s.top() << std::endl;  // 2
-  std::cout << "Size: " << s.size() << std::endl;          // 2
+  std::cout << "Top after pop: " << s.top() << "\n";  // 2
+  std::cout << "Size: " << s.size() << "\n";          // 2
 
   return EXIT_SUCCESS;
 }

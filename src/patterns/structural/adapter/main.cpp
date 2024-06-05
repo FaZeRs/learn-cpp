@@ -10,7 +10,7 @@ class OldPrinter {
  public:
   void printDocument(const std::string &document) const {
     std::cout << "Old Printer: " << m_model << ", document: " << document
-              << std::endl;
+              << "\n";
   }
 
  private:
@@ -34,7 +34,7 @@ class ModernPrinter : public DocumentPrinter {
  public:
   void print(const std::string &document) const override {
     std::cout << "Modern Printer: " << m_model << ", document: " << document
-              << std::endl;
+              << "\n";
   }
 
  private:

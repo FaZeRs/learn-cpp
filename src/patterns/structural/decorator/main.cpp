@@ -65,13 +65,13 @@ class Sugar : public BeverageDecorator {
 
 int main() {
   std::unique_ptr<Beverage> coffee = std::make_unique<Coffee>();
-  std::cout << coffee->description() << " - $" << coffee->cost() << std::endl;
+  std::cout << coffee->description() << " - $" << coffee->cost() << "\n";
 
   coffee = std::make_unique<Milk>(std::move(coffee));
-  std::cout << coffee->description() << " - $" << coffee->cost() << std::endl;
+  std::cout << coffee->description() << " - $" << coffee->cost() << "\n";
 
   coffee = std::make_unique<Sugar>(std::move(coffee));
-  std::cout << coffee->description() << " - $" << coffee->cost() << std::endl;
+  std::cout << coffee->description() << " - $" << coffee->cost() << "\n";
 
   return EXIT_SUCCESS;
 }

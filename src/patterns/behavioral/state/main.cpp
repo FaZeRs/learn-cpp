@@ -62,44 +62,44 @@ class StoppedState : public PlayerState {
 MusicPlayer::MusicPlayer() : m_state(std::make_unique<StoppedState>()) {}
 
 void PlayingState::play(MusicPlayer & /*player*/) {
-  std::cout << "Already playing." << std::endl;
+  std::cout << "Already playing.\n";
 }
 
 void PlayingState::pause(MusicPlayer &player) {
-  std::cout << "Music paused." << std::endl;
+  std::cout << "Music paused.\n";
   player.setState(std::make_unique<PausedState>());
 }
 
 void PlayingState::stop(MusicPlayer &player) {
-  std::cout << "Music stopped." << std::endl;
+  std::cout << "Music stopped.\n";
   player.setState(std::make_unique<StoppedState>());
 }
 
 void PausedState::play(MusicPlayer &player) {
-  std::cout << "Resuming music." << std::endl;
+  std::cout << "Resuming music.\n";
   player.setState(std::make_unique<PlayingState>());
 }
 
 void PausedState::pause(MusicPlayer & /*player*/) {
-  std::cout << "Already paused." << std::endl;
+  std::cout << "Already paused.\n";
 }
 
 void PausedState::stop(MusicPlayer &player) {
-  std::cout << "Music stopped." << std::endl;
+  std::cout << "Music stopped.\n";
   player.setState(std::make_unique<StoppedState>());
 }
 
 void StoppedState::play(MusicPlayer &player) {
-  std::cout << "Playing music." << std::endl;
+  std::cout << "Playing music.\n";
   player.setState(std::make_unique<PlayingState>());
 }
 
 void StoppedState::pause(MusicPlayer & /*player*/) {
-  std::cout << "Can't pause when stopped." << std::endl;
+  std::cout << "Can't pause when stopped.\n";
 }
 
 void StoppedState::stop(MusicPlayer & /*player*/) {
-  std::cout << "Already stopped." << std::endl;
+  std::cout << "Already stopped.\n";
 }
 
 int main() {

@@ -45,7 +45,7 @@ int main() {
   data[3] = "I'm a";
   data[4] = "string";
   for (const auto &item : data) {
-    std::cout << item << std::endl;
+    std::cout << item << "\n";
   }
   assert(data[0] == "Hello");
   assert(data.size() == 5);
@@ -55,7 +55,7 @@ int main() {
   data2[1] = 1;
 
   for (const auto &item : data2) {
-    std::cout << item << std::endl;
+    std::cout << item << "\n";
   }
 
   return EXIT_SUCCESS;

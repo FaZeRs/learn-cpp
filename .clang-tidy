@@ -1,7 +1,16 @@
 ---
-Checks: 'google-*,clang-diagnostic-*,clang-analyzer-*,cppcoreguidelines-*,-cppcoreguidelines-avoid-magic-numbers,-cppcoreguidelines-pro-bounds-,openmp-*,performance-*,portability-*,modernize-*,-modernize-use-trailing-*'
+Checks: "google-*,
+        clang-diagnostic-*,
+        clang-analyzer-*,
+        cppcoreguidelines-*,
+        -cppcoreguidelines-avoid-magic-numbers,
+        -cppcoreguidelines-pro-bounds-,
+        openmp-*,
+        performance-*,
+        portability-*,
+        modernize-*,
+        -modernize-use-trailing-*
+"
 WarningsAsErrors: ''
-HeaderFilterRegex: 'src\/.*.h'
-AnalyzeTemporaryDtors: false
+HeaderFilterRegex: ''
 FormatStyle:     google
-...

@@ -24,16 +24,12 @@ class RealImage : public Image {
     loadFromDisk();
   }
 
-  void display() override {
-    std::cout << "Displaying " << m_filename << std::endl;
-  }
+  void display() override { std::cout << "Displaying " << m_filename << "\n"; }
 
  private:
   std::string m_filename;
 
-  void loadFromDisk() const {
-    std::cout << "Loading " << m_filename << std::endl;
-  }
+  void loadFromDisk() const { std::cout << "Loading " << m_filename << "\n"; }
 };
 
 // Proxy
@@ -58,12 +54,12 @@ int main() {
       std::make_unique<ProxyImage>("testImage1.jpg");
   std::unique_ptr<Image> image2 = std::make_unique<RealImage>("testImage2.jpg");
 
-  std::cout << "First call to display() method:" << std::endl;
+  std::cout << "First call to display() method:\n";
   // Image will be loaded and displayed only when the display method is called.
   image1->display();
   image2->display();
 
-  std::cout << "Second call to display() method:" << std::endl;
+  std::cout << "Second call to display() method:\n";
   // The image is already loaded, so it will only be displayed this time.
   image1->display();
 

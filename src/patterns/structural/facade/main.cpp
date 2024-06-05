@@ -8,15 +8,15 @@ class CPU {
  public:
   void freeze() {
     m_is_frozen = true;
-    std::cout << "CPU is frozen." << std::endl;
+    std::cout << "CPU is frozen.\n";
   }
   void jump(int64_t position) {
     m_position = position;
-    std::cout << "CPU jumped to position: " << position << "." << std::endl;
+    std::cout << "CPU jumped to position: " << position << ".\n";
   }
   void execute() {
     m_is_executing = true;
-    std::cout << "CPU execution started." << std::endl;
+    std::cout << "CPU execution started.\n";
   }
 
  private:
@@ -31,7 +31,7 @@ class Memory {
     m_position = position;
     m_data = std::move(data);
     std::cout << "Memory loaded data: " << m_data
-              << " at position: " << m_position << "." << std::endl;
+              << " at position: " << m_position << ".\n";
   }
 
  private:
@@ -43,7 +43,7 @@ class HardDrive {
  public:
   [[nodiscard]] std::string read(int64_t lba, int64_t size) const {
     std::cout << "HardDrive read data: " << m_data << " at lba: " << lba
-              << " with size: " << size << "." << std::endl;
+              << " with size: " << size << ".\n";
     return m_data;
   }
 

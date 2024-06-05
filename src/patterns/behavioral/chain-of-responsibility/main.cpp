@@ -75,12 +75,12 @@ class DogHandler : public AbstractHandler {
 void ClientCode(Handler &handler) {
   std::vector<std::string> food = {"Nut", "Banana", "Cup of coffee"};
   for (const std::string &f : food) {
-    std::cout << "Client: Who wants a " << f << "?" << std::endl;
+    std::cout << "Client: Who wants a " << f << "?\n";
     const std::string result = handler.Handle(f);
     if (!result.empty()) {
-      std::cout << "  " << result << std::endl;
+      std::cout << "  " << result << "\n";
     } else {
-      std::cout << "  " << f << " was left untouched." << std::endl;
+      std::cout << "  " << f << " was left untouched.\n";
     }
   }
 }
@@ -91,10 +91,10 @@ int main() {
   auto dog = std::make_unique<DogHandler>();
   monkey->SetNext(squirrel.get())->SetNext(dog.get());
 
-  std::cout << "Chain: Monkey > Squirrel > Dog" << std::endl << std::endl;
+  std::cout << "Chain: Monkey > Squirrel > Dog\n\n";
   ClientCode(*monkey);
-  std::cout << std::endl;
-  std::cout << "Subchain: Squirrel > Dog" << std::endl << std::endl;
+  std::cout << "\n";
+  std::cout << "Subchain: Squirrel > Dog\n\n";
   ClientCode(*squirrel);
 
   return EXIT_SUCCESS;

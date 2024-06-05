@@ -3,12 +3,12 @@
 #include <memory>
 #include <utility>
 
-#include "singly.h"
-#include "doubly.h"
 #include "circular.h"
+#include "doubly.h"
+#include "singly.h"
 
 void singly_linked_list() {
-  std::cout << "Singly Linked List" << std::endl;
+  std::cout << "Singly Linked List\n";
   SinglyLinkedList<int> list;
   list.push_back(5);
   list.push_back(10);
@@ -21,7 +21,7 @@ void singly_linked_list() {
   std::cout << "Linked List Elements after insert at first 20: ";
   list.print();
 
-  std::cout << "Element at position 2: " << *list.at(2) << std::endl;
+  std::cout << "Element at position 2: " << *list.at(2) << "\n";
 
   list.push_front(25);
   std::cout << "Linked List Elements after push front 25: ";
@@ -39,11 +39,11 @@ void singly_linked_list() {
   std::cout << "Linked List Elements after pop back: ";
   list.print();
 
-  std::cout << "Linked List size: " << list.size() << std::endl;
+  std::cout << "Linked List size: " << list.size() << "\n";
 }
 
 void doubly_linked_list() {
-  std::cout << "Doubly Linked List" << std::endl;
+  std::cout << "Doubly Linked List\n";
   DoublyLinkedList<int> list;
   list.push_back(5);
   list.push_back(10);
@@ -56,7 +56,7 @@ void doubly_linked_list() {
   std::cout << "Linked List Elements after insert at first 20: ";
   list.print();
 
-  std::cout << "Element at position 2: " << *list.at(2) << std::endl;
+  std::cout << "Element at position 2: " << *list.at(2) << "\n";
 
   list.push_front(25);
   std::cout << "Linked List Elements after push front 25: ";
@@ -74,11 +74,11 @@ void doubly_linked_list() {
   std::cout << "Linked List Elements after pop back: ";
   list.print();
 
-  std::cout << "Linked List size: " << list.size() << std::endl;
+  std::cout << "Linked List size: " << list.size() << "\n";
 }
 
 void circular_linked_list() {
-  std::cout << "Circular Linked List" << std::endl;
+  std::cout << "Circular Linked List\n";
   CircularLinkedList<int> list;
   list.push_back(5);
   list.push_back(10);
@@ -91,7 +91,7 @@ void circular_linked_list() {
   std::cout << "Linked List Elements after insert at first 20: ";
   list.print();
 
-  std::cout << "Element at position 2: " << *list.at(2) << std::endl;
+  std::cout << "Element at position 2: " << *list.at(2) << "\n";
 
   list.push_front(25);
   std::cout << "Linked List Elements after push front 25: ";
@@ -109,14 +109,14 @@ void circular_linked_list() {
   std::cout << "Linked List Elements after pop back: ";
   list.print();
 
-  std::cout << "Linked List size: " << list.size() << std::endl;
+  std::cout << "Linked List size: " << list.size() << "\n";
 }
 
 int main() {
   singly_linked_list();
-  std::cout << std::endl;
+  std::cout << "\n";
   doubly_linked_list();
-  std::cout << std::endl;
+  std::cout << "\n";
   circular_linked_list();
 
   return EXIT_SUCCESS;

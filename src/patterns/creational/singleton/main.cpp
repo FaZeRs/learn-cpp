@@ -14,13 +14,13 @@ class Logger {
   Logger& operator=(Logger&&) = delete;
   static Logger& getInstance() {
     static Logger instance;
-    std::cout << "Object Address: " << &instance << std::endl;
+    std::cout << "Object Address: " << &instance << "\n";
     return instance;
   }
 
   void log(const std::string& str) {
     std::scoped_lock<std::mutex> lock(m_mutex);
-    std::cout << "Log value: " << str << std::endl;
+    std::cout << "Log value: " << str << "\n";
   }
 
  private:

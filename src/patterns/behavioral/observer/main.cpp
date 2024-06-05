@@ -60,7 +60,7 @@ class CurrentConditionsDisplay : public Observer {
 
   void display() const {
     std::cout << "Current conditions: " << m_temperature << "F degrees and "
-              << m_humidity << "% humidity" << std::endl;
+              << m_humidity << "% humidity\n";
   }
 
  private:

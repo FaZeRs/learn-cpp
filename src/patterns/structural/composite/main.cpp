@@ -19,13 +19,13 @@ class Graphic {
 // Leaf
 class Circle : public Graphic {
  public:
-  void draw() const override { std::cout << "Drawing Circle" << std::endl; }
+  void draw() const override { std::cout << "Drawing Circle\n"; }
 };
 
 // Leaf
 class Square : public Graphic {
  public:
-  void draw() const override { std::cout << "Drawing Square" << std::endl; }
+  void draw() const override { std::cout << "Drawing Square\n"; }
 };
 
 // Composite
@@ -59,7 +59,7 @@ int main() {
   GraphicGroup main_group;
   main_group.add(&group);
 
-  std::cout << "Drawing the main group:" << std::endl;
+  std::cout << "Drawing the main group:\n";
   main_group.draw();
 
   return EXIT_SUCCESS;

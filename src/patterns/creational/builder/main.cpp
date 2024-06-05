@@ -88,7 +88,7 @@ int main() {
   Computer gaming_computer = gaming_builder.getComputer();
   gaming_computer.show();
 
-  std::cout << std::endl;
+  std::cout << "\n";
 
   LaptopComputerBuilder laptop_builder;
   engineer.setBuilder(&laptop_builder);

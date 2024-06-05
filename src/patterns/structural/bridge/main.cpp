@@ -21,7 +21,7 @@ class RasterRenderer : public Renderer {
  public:
   void renderCircle(float x, float y, float radius) override {
     std::cout << "Rasterizing circle at position: " << x << ", " << y
-              << " of radius: " << radius << std::endl;
+              << " of radius: " << radius << "\n";
   }
 };
 
@@ -30,7 +30,7 @@ class VectorRenderer : public Renderer {
  public:
   void renderCircle(float x, float y, float radius) override {
     std::cout << "Drawing vector circle at position: " << x << ", " << y
-              << " of radius: " << radius << std::endl;
+              << " of radius: " << radius << "\n";
   }
 };
 

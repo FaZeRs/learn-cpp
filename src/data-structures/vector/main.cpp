@@ -28,7 +28,7 @@ class Vector {
   void push_back(const T &value) {
     if (m_size == m_capacity) reserve(m_capacity * growth_factor);
 
-    m_data[m_size++] = value;  // NOLINT
+    m_data[m_size++] = value;
   }
 
   void emplace_back(T &&value) {
@@ -41,8 +41,13 @@ class Vector {
 
   T *begin() noexcept { return m_data.get(); }
   [[nodiscard]] const T *begin() const noexcept { return m_data.get(); }
-  T *end() noexcept { return static_cast<T*>(m_data.get()) + m_size; }
-  [[nodiscard]] const T *end() const noexcept { return static_cast<const T*>(m_data.get()) + m_size; }
+  T *end() noexcept {
+    // NOLINTNEXTLINE
+    return static_cast<T *>(m_data.get()) + m_size;
+  }
+  [[nodiscard]] const T *end() const noexcept {
+    return static_cast<const T *>(m_data.get()) + m_size;
+  }
 
   [[nodiscard]] T *data() noexcept { return m_data.get(); }
   [[nodiscard]] const T *data() const noexcept { return m_data.get(); }
@@ -76,7 +81,7 @@ int main() {
   vec.emplace_back(3);
 
   for (const auto &item : vec) {
-    std::cout << item << std::endl;
+    std::cout << item << "\n";
   }
 
   return EXIT_SUCCESS;
