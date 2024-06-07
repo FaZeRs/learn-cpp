@@ -24,39 +24,34 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - windows-latest
-          - ubuntu-latest
-          # - macos-latest
+          - windows-2022
+          - ubuntu-24.04
         compiler:
-          - llvm
-          - gcc
+          - llvm-18
+          - gcc-14
         generator:
           - "Ninja Multi-Config"
         build_type:
           - Release
           - Debug
         exclude:
-          - os: windows-latest
-            compiler: gcc
-          - os: windows-latest
-            compiler: llvm
+          - os: windows-2022
+            compiler: gcc-14
+          - os: windows-2022
+            compiler: llvm-18
         include:
-          - os: windows-latest
+          - os: windows-2022
             compiler: msvc
             generator: "Visual Studio 17 2022"
             build_type: Release
 
-          - os: windows-latest
+          - os: windows-2022
             compiler: msvc
             generator: "Visual Studio 17 2022"
             build_type: Debug
 
     steps:
-      - name: Install dependencies
-        if: ${{ contains(matrix.os, 'ubuntu') }}
-        run: sudo apt-get install -y libcurl4-openssl-dev libxcb-xinerama0 libxkbcommon-dev libxkbcommon-x11-dev doxygen graphviz
-
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Cache
         uses: ./.github/actions/setup_cache
@@ -76,8 +71,8 @@ jobs:
           ccache: true
           clangtidy: true
           cppcheck: true
-          gcovr: true
-          opencppcoverage: true
+          gcovr: ${{ contains(matrix.os, 'ubuntu') }}
+          opencppcoverage: ${{ contains(matrix.os, 'windows') }}
 
       - name: Create Build Environment
         run: cmake -E make_directory ${{ runner.workspace }}/build
