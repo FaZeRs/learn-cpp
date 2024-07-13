@@ -1,7 +1,5 @@
 #include <iostream>
 #include <memory>
-#include <optional>
-#include <stdexcept>
 
 template <typename T>
 struct Node {

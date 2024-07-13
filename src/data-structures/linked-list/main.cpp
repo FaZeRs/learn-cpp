@@ -1,7 +1,5 @@
 #include <cstdlib>
 #include <iostream>
-#include <memory>
-#include <utility>
 
 #include "circular.h"
 #include "doubly.h"
