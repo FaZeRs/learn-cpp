@@ -57,23 +57,23 @@ void quick_sort(std::vector<T>& arr, size_t low, size_t high) {
   }
 }
 
+void printArray(const std::vector<int>& arr) {
+  for (const auto& elem : arr) {
+    std::cout << elem << " ";
+  }
+  std::cout << "\n";
+}
+
 int main() {
   std::vector<int> arr = {3, 6, 8, 10, 1, 2, 1};
 
   std::cout << "Original array: ";
-  for (const auto& elem : arr) {
-    std::cout << elem << " ";
-  }
-  std::cout << "\n";
+  printArray(arr);
 
-  // Perform quick sort
   quick_sort(arr, 0, arr.size() - 1);
 
-  // Output the sorted array
   std::cout << "Sorted array: ";
-  for (const auto& elem : arr) {
-    std::cout << elem << " ";
-  }
-  std::cout << "\n";
+  printArray(arr);
+
   return EXIT_SUCCESS;
 }
