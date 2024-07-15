@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.27)
 
 project(learn-cpp
   VERSION "1.0.0"
