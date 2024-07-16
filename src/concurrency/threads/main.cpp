@@ -6,7 +6,11 @@
 #include <thread>
 #include <vector>
 
-constexpr auto sum_range = [](const auto start, const auto end) -> int {
+template <typename T>
+concept Integral = std::is_integral_v<T>;
+
+constexpr auto sum_range = [](Integral auto start,
+                              Integral auto end) -> Integral auto {
   return (end - start) * (start + end - 1) / 2;
 };
 
