@@ -1,8 +1,11 @@
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <concepts>
+#include <cstddef>
 #include <print>
 #include <ranges>
+#include <utility>
 
 template <typename T>
 concept Comparable = std::totally_ordered<T>;
