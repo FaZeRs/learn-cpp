@@ -1,4 +1,5 @@
-#include <chrono>
+// IWYU pragma: no_include <bits/chrono.h>
+#include <chrono>  // IWYU pragma: keep
 #include <concepts>
 #include <cstddef>
 #include <functional>

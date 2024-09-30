@@ -22,7 +22,7 @@ int main() {
   std::vector<int> results(static_cast<size_t>(num_threads));
 
 #pragma omp parallel num_threads(num_threads) default(none) \
-    shared(results, n, range_per_thread)
+    shared(results, n, range_per_thread, sum_range)
   {
     int thread_id = omp_get_thread_num();
     const int start = thread_id * range_per_thread + 1;

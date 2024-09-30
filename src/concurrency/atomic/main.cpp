@@ -1,5 +1,4 @@
 #include <atomic>
-#include <mutex>
 #include <print>
 #include <thread>
 
@@ -14,8 +13,6 @@ int main() {
 
   std::jthread t1(increment);
   std::jthread t2(increment);
-  t1.join();
-  t2.join();
-  std::println("Number after execution of t1 and t2 is {}", number);
+  std::println("Number after execution of t1 and t2 is {}", number.load());
   return 0;
 }
