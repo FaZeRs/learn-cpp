@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <array>
 #include <cassert>
 #include <concepts>
@@ -10,15 +9,36 @@
 template <typename T>
 concept Comparable = std::totally_ordered<T>;
 
-template <std::ranges::random_access_range Range, Comparable T>
-constexpr auto binary_search(Range&& range, const T& value) noexcept {
-  return std::ranges::binary_search(std::forward<Range>(range), value);
+template <Comparable T, std::size_t N>
+constexpr bool ternary_search(const std::array<T, N>& arr, const T& value,
+                              std::size_t left, std::size_t right) {
+  if (left > right) {
+    return false;
+  }
+
+  std::size_t mid1 = left + (right - left) / 3;
+  std::size_t mid2 = right - (right - left) / 3;
+
+  if (arr.at(mid1) == value || arr.at(mid2) == value) {
+    return true;
+  }
+
+  if (value < arr.at(mid1)) {
+    return ternary_search(arr, value, left, mid1 - 1);
+  }
+
+  if (value > arr.at(mid2)) {
+    return ternary_search(arr, value, mid2 + 1, right);
+  }
+
+  return ternary_search(arr, value, mid1 + 1, mid2 - 1);
 }
 
 template <typename Derived>
 struct Searchable {
   [[nodiscard]] constexpr auto contains(const auto& value) const {
-    return binary_search(static_cast<const Derived&>(*this), value);
+    const auto& self = static_cast<const Derived&>(*this);
+    return ternary_search(self.arr, value, 0, self.arr.size() - 1);
   }
 };
 
@@ -28,9 +48,7 @@ struct Data : Searchable<Data<T, N>> {
 
   // cppcheck-suppress noExplicitConstructor
   // NOLINTNEXTLINE(google-explicit-constructor)
-  constexpr Data(std::array<T, N> init_arr) : arr(std::move(init_arr)) {
-    std::ranges::sort(arr);
-  }
+  constexpr Data(std::array<T, N> init_arr) : arr(std::move(init_arr)) {}
   constexpr Data() : arr{} {}
 
   [[nodiscard]] constexpr auto begin() const noexcept { return arr.begin(); }
@@ -45,7 +63,6 @@ int main() {
   constexpr int target = 5;
 
   constexpr Data<int, 9> data = {{1, 2, 3, 4, 5, 6, 7, 8, 9}};
-  static_assert(std::ranges::is_sorted(data));
   if constexpr (data.contains(target)) {
     std::println("Found {} in the array.", target);
   } else {
