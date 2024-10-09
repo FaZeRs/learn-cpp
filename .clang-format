@@ -1,8 +1,8 @@
-﻿BasedOnStyle: Google
+BasedOnStyle: Google
 IndentWidth: 2
 ---
 Language: Cpp
-Standard: c++20
+Standard: c++23
 PointerAlignment: Left
 ReferenceAlignment: Left
 AlwaysBreakAfterReturnType: None
