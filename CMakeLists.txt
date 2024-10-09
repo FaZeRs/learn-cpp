@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.27)
 
-project(learn-cpp
+project(
+  learn-cpp
   VERSION "1.0.0"
   DESCRIPTION "My personal C++ learning project"
   HOMEPAGE_URL "https://naurislinde.dev"
@@ -13,10 +14,16 @@ add_library(project_warnings INTERFACE)
 add_library(project_options INTERFACE)
 
 include(cmake/CompilerWarnings.cmake)
-set_project_warnings(project_warnings ${WARNINGS_AS_ERRORS} "" "" "")
+set_project_warnings(
+  project_warnings
+  ${WARNINGS_AS_ERRORS}
+  ""
+  ""
+  "")
 
 include(cmake/Sanitizers.cmake)
-enable_sanitizers(project_options
+enable_sanitizers(
+  project_options
   ${ENABLE_SANITIZER_ADDRESS}
   ${ENABLE_SANITIZER_LEAK}
   ${ENABLE_SANITIZER_UNDEFINED}
