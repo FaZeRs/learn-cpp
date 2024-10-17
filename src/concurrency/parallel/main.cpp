@@ -1,5 +1,4 @@
-#include <oneapi/tbb/blocked_range.h>
-#include <oneapi/tbb/parallel_reduce.h>
+#include <oneapi/tbb.h>
 
 #include <concepts>
 #include <functional>
