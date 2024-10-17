@@ -74,21 +74,6 @@ jobs:
           gcovr: ${{ contains(matrix.os, 'ubuntu') }}
           opencppcoverage: ${{ contains(matrix.os, 'windows') }}
 
-      - name: Prepare the PATH
-        run: |
-            if [[ "${{ runner.os }}" == "Windows" ]]; then
-                echo "$env:USERPROFILE\vcpkg" >> $GITHUB_PATH
-                echo "$env:USERPROFILE\ninja" >> $GITHUB_PATH
-            else
-                echo "$HOME/vcpkg" >> $GITHUB_PATH
-                echo "$HOME/ninja" >> $GITHUB_PATH
-            fi            
-        shell: bash
-  
-      - name: Install dependencies
-        run: |
-          vcpkg install  
-
       - name: Create Build Environment
         run: cmake -E make_directory ${{ runner.workspace }}/build
 
