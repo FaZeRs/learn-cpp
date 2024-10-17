@@ -67,7 +67,7 @@ jobs:
           vcvarsall: ${{ contains(matrix.os, 'windows' )}}
           cmake: true
           ninja: true
-          vcpkg: false
+          vcpkg: true
           ccache: true
           clangtidy: true
           cppcheck: true
