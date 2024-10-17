@@ -30,7 +30,7 @@ jobs:
           - llvm-18
           - gcc-14
         generator:
-          - "Ninja Multi-Config"
+          - "Ninja"
         build_type:
           - Release
           - Debug
