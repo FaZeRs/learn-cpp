@@ -27,8 +27,8 @@ jobs:
           - windows-2022
           - ubuntu-24.04
         compiler:
-          - llvm
-          - gcc
+          - llvm-18
+          - gcc-14
         generator:
           - "Ninja"
         build_type:
@@ -36,9 +36,9 @@ jobs:
           - Debug
         exclude:
           - os: windows-2022
-            compiler: gcc
+            compiler: gcc-14
           - os: windows-2022
-            compiler: llvm
+            compiler: llvm-18
         include:
           - os: windows-2022
             compiler: msvc
