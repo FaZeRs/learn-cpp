@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.27)
 
+include(cmake/CPM.cmake)
+
+cpmaddpackage("gh:fazers/cmake#1.0.0")
+set(CMAKE_MODULE_PATH "${cmake_SOURCE_DIR};")
+
 project(
   learn-cpp
   VERSION "1.0.0"
@@ -13,7 +18,7 @@ include(cmake/CompilationFlags.cmake)
 add_library(project_warnings INTERFACE)
 add_library(project_options INTERFACE)
 
-include(cmake/CompilerWarnings.cmake)
+include(compiler-warnings)
 set_project_warnings(
   project_warnings
   ${WARNINGS_AS_ERRORS}
@@ -21,7 +26,7 @@ set_project_warnings(
   ""
   "")
 
-include(cmake/Sanitizers.cmake)
+include(sanitizers)
 enable_sanitizers(
   project_options
   ${ENABLE_SANITIZER_ADDRESS}
@@ -31,22 +36,22 @@ enable_sanitizers(
   ${ENABLE_SANITIZER_MEMORY})
 
 if(ENABLE_CACHE)
-  include(cmake/Cache.cmake)
+  include(cache)
   enable_cache()
 endif()
 
-include(cmake/StaticAnalyzers.cmake)
+include(static-analyzers)
 
 if(ENABLE_CLANG_TIDY)
   enable_clang_tidy(project_options ${WARNINGS_AS_ERRORS})
 endif()
 
 if(ENABLE_CPPCHECK)
-  enable_cppcheck(${WARNINGS_AS_ERRORS} "")
+  enable_cppcheck(project_options ${WARNINGS_AS_ERRORS} "")
 endif()
 
 if(ENABLE_INCLUDE_WHAT_YOU_USE)
-  enable_include_what_you_use()
+  enable_include_what_you_use(project_options)
 endif()
 
 target_compile_features(project_options INTERFACE cxx_std_${CMAKE_CXX_STANDARD})
