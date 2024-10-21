@@ -1,14 +1,10 @@
-#include <oneapi/tbb.h>
-
-#include <concepts>
+#include <execution>
 #include <functional>
+#include <numeric>
 #include <print>
+#include <vector>
 
-template <typename T>
-concept Integral = std::integral<T>;
-
-constexpr auto sum_range = [](Integral auto start,
-                              Integral auto end) -> Integral auto {
+constexpr auto sum_range = [](auto start, auto end) -> int {
   return (end - start) * (start + end - 1) / 2;
 };
 
@@ -18,19 +14,18 @@ int main() {
 
   // Calculate the range each thread will handle
   constexpr auto range_per_thread = n / num_threads;
+  std::vector<int> indices(num_threads);
+  std::iota(indices.begin(), indices.end(), 0);
 
-  const int total_sum = tbb::parallel_reduce(
-      tbb::blocked_range<int>(0, num_threads), 0,
-      [&](const tbb::blocked_range<int>& r, int local_sum) {
-        for (int i = r.begin(); i < r.end(); ++i) {
-          auto start = i * range_per_thread + 1;
-          auto end =
-              (i == num_threads - 1) ? (n + 1) : (start + range_per_thread);
-          local_sum += sum_range(start, end);
-        }
-        return local_sum;
-      },
-      std::plus<>());
+  // Summing up the partial sums in parallel
+  const int total_sum = std::transform_reduce(
+      std::execution::par, indices.begin(), indices.end(), 0, std::plus<>(),
+      [&](int i) {
+        auto start = i * range_per_thread + 1;
+        auto end =
+            (i == num_threads - 1) ? (n + 1) : (start + range_per_thread);
+        return sum_range(start, end);
+      });
 
   std::println("Total sum from 1 to {} is: {}", n, total_sum);
 
