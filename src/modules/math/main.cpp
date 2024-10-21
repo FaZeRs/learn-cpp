@@ -1,11 +1,11 @@
-import math; // Import the math module
+#include <print>
 
-#include <iostream>
+import math; // Import the math module
 
 int main() {
   int a = 5;
   int b = 3;
-  std::cout << "Add: " << add(a, b) << "\n";
-  std::cout << "Subtract: " << subtract(a, b) << "\n";
+  std::println("Add: {}", add(a, b));
+  std::println("Subtract: {}", subtract(a, b));
   return 0;
 }
