@@ -1,44 +1,48 @@
+#include <array>
+#include <concepts>
 #include <cstdlib>
-#include <iostream>
+#include <print>
+#include <ranges>
+#include <span>
 #include <utility>
-#include <vector>
 
-void bubble_sort(std::vector<int>& arr) {
-  size_t n = arr.size();
-  while (true) {
+template <typename T>
+concept Comparable = requires(T a, T b) {
+  { a < b } -> std::convertible_to<bool>;
+  { a > b } -> std::convertible_to<bool>;
+};
+
+template <Comparable T>
+constexpr void bubble_sort(std::span<T> data) noexcept {
+  if (data.empty()) return;
+  for (auto i : std::views::iota(0uz, data.size() - 1)) {
     bool swapped = false;
-    for (size_t i = 1; i < n; ++i) {
-      if (arr[i - 1] > arr[i]) {
-        std::swap(arr[i - 1], arr[i]);
+    for (auto j : std::views::iota(0uz, data.size() - i - 1)) {
+      if (data[j] > data[j + 1]) {
+        std::ranges::swap(data[j], data[j + 1]);
         swapped = true;
       }
     }
-    // Each iteration sorts the next largest element, so we can reduce n
-    --n;
-    if (!swapped) {
-      break;
-    }
+    if (!swapped) break;  // Early exit if no swaps needed
   }
-}
-
-void printArray(const std::vector<int>& arr) {
-  for (const auto& elem : arr) {
-    std::cout << elem << " ";
-  }
-  std::cout << "\n";
 }
 
 int main() {
-  std::vector<int> arr = {3, 6, 8, 10, 1, 2, 1};
+  std::array<int, 7> arr = {3, 6, 8, 10, 1, 2, 1};
 
-  std::cout << "Original array: ";
-  printArray(arr);
+  std::println("Original array:");
+  for (const auto& elem : arr) {
+    std::print("{} ", elem);
+  }
+  std::println("");
 
-  // Perform bubble sort
-  bubble_sort(arr);
+  bubble_sort<int>(std::span{arr});
 
-  std::cout << "Sorted array: ";
-  printArray(arr);
+  std::println("Sorted array:");
+  for (const auto& elem : arr) {
+    std::print("{} ", elem);
+  }
+  std::println("");
 
   return EXIT_SUCCESS;
 }
