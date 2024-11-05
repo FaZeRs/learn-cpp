@@ -1,15 +1,23 @@
+#include <concepts>
 #include <cstdlib>
-#include <iostream>
+#include <print>
+#include <ranges>
 #include <stdexcept>
 #include <utility>
-#include <vector>
 
 template <typename T>
-T medianOfThreePivot(std::vector<T>& arr, size_t low, size_t high) {
-  // Ensure the high index is greater than the low index
-  if (high <= low) throw std::invalid_argument("high must be greater than low");
+concept Sortable = std::totally_ordered<T> && std::movable<T>;
 
-  size_t mid = low + (high - low) / 2;
+template <typename T>
+[[nodiscard]] constexpr T medianOfThreePivot(std::span<T> arr) {
+  if (arr.size() < 2) {
+    throw std::invalid_argument("span size must be at least 2");
+  }
+
+  size_t low = 0;
+  size_t high = arr.size() - 1;
+  size_t mid = high / 2;
+
   // Sort the three elements at low, mid, and high
   if (arr[mid] < arr[low]) std::swap(arr[mid], arr[low]);
   if (arr[high] < arr[low]) std::swap(arr[high], arr[low]);
@@ -21,11 +29,14 @@ T medianOfThreePivot(std::vector<T>& arr, size_t low, size_t high) {
   return arr[high - 1];  // Return the pivot value
 }
 
-template <typename T>
-size_t partition(std::vector<T>& arr, size_t low, size_t high) {
-  if (high <= low + 1) return low;  // Early exit for trivial cases
+template <Sortable T>
+[[nodiscard]] constexpr size_t partition(std::span<T> arr) {
+  if (arr.size() <= 2) return 0;
 
-  T pivot = medianOfThreePivot(arr, low, high);
+  T pivot = medianOfThreePivot(arr);
+  size_t low = 0;
+  size_t high = arr.size() - 1;
+
   size_t i = low;
   size_t j = high - 1;
 
@@ -46,35 +57,44 @@ size_t partition(std::vector<T>& arr, size_t low, size_t high) {
   return i;
 }
 
-template <typename T>
-void quick_sort(std::vector<T>& arr, size_t low, size_t high) {
-  if (low < high) {
-    // p is partitioning index, arr[pi] is now at right place
-    size_t p = partition(arr, low, high);
+template <typename Range>
+concept SortableRange = std::ranges::random_access_range<Range> &&
+                        Sortable<std::ranges::range_value_t<Range>>;
 
-    // Separately sort elements before partition and after partition
-    if (p > 0) quick_sort(arr, low, p - 1);  // Check added to avoid underflow
-    quick_sort(arr, p + 1, high);
-  }
+template <SortableRange Range>
+constexpr void quick_sort(Range&& range) {
+  quick_sort(std::span{std::forward<Range>(range)});
 }
 
-void printArray(const std::vector<int>& arr) {
-  for (const auto& elem : arr) {
-    std::cout << elem << " ";
+template <Sortable T>
+constexpr void quick_sort(std::span<T> arr) noexcept {
+  if (arr.size() < 2) return;
+
+  size_t p = partition(arr);
+
+  if (p > 0) {
+    quick_sort(arr.subspan(0, p));
   }
-  std::cout << "\n";
+  quick_sort(arr.subspan(p + 1));
 }
 
 int main() {
-  std::vector<int> arr = {3, 6, 8, 10, 1, 2, 1};
+  std::array<int, 7> arr = {3, 6, 8, 10, 1, 2, 1};
 
-  std::cout << "Original array: ";
-  printArray(arr);
+  auto print_array = [](const auto& container) {
+    for (const auto& elem : std::views::all(container)) {
+      std::print("{} ", elem);
+    }
+    std::println("");
+  };
 
-  quick_sort(arr, 0, arr.size() - 1);
+  std::println("Original array: ");
+  print_array(arr);
 
-  std::cout << "Sorted array: ";
-  printArray(arr);
+  quick_sort<int>(arr);
+
+  std::println("Sorted array: ");
+  print_array(arr);
 
   return EXIT_SUCCESS;
 }

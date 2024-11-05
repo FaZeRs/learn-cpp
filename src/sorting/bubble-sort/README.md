@@ -46,3 +46,7 @@ Pass 1: [3, 5, 4, 2, 8]
 Pass 2: [3, 4, 2, 5, 8]
 Pass 3: [3, 2, 4, 5, 8]
 Pass 4: [2, 3, 4, 5, 8]
+
+## References
+
+- [Bubble Sort on Wikipedia](https://en.wikipedia.org/wiki/Bubble_sort)
