@@ -33,12 +33,16 @@ void callFoo(T&) {
 
 class A {
  public:
-  void foo() { std::println("A::foo()"); }  // cppcheck-suppress functionStatic
+  void foo() const {
+    std::println("A::foo()");
+  }  // cppcheck-suppress functionStatic
 };
 
 class B {
  public:
-  void bar() { std::println("B::bar()"); }  // cppcheck-suppress functionStatic
+  void bar() const {
+    std::println("B::bar()");
+  }  // cppcheck-suppress functionStatic
 };
 
 int main() {

@@ -1,4 +1,4 @@
-#include <iostream>
+#include <print>
 #include <type_traits>
 
 // Base case: factorial of 0 is 1
@@ -11,10 +11,10 @@ struct Factorial<0> : std::integral_constant<int, 1> {};
 
 int main() {
   // Compute factorial of 5 at compile time
-  std::cout << "Factorial of 5 is " << Factorial<5>::value << "\n";
+  std::println("Factorial of 5 is {}", Factorial<5>::value);
 
   // Compute factorial of 10 at compile time
-  std::cout << "Factorial of 10 is " << Factorial<10>::value << "\n";
+  std::println("Factorial of 10 is {}", Factorial<10>::value);
 
   return 0;
 }
