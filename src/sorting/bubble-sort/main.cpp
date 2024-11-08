@@ -24,9 +24,9 @@ constexpr void bubble_sort(Range&& range) {
 template <Comparable T>
 constexpr void bubble_sort(std::span<T> data) noexcept {
   if (data.empty()) return;
-  for (auto i : std::views::iota(0uz, data.size() - 1)) {
+  for (std::size_t i = 0; i < data.size() - 1; ++i) {
     bool swapped = false;
-    for (auto j : std::views::iota(0uz, data.size() - i - 1)) {
+    for (std::size_t j = 0; j < data.size() - i - 1; ++j) {
       if (data[j] > data[j + 1]) {
         std::ranges::swap(data[j], data[j + 1]);
         swapped = true;
