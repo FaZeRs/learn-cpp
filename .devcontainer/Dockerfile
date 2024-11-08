@@ -1,4 +1,4 @@
-ARG VARIANT="focal"
+ARG VARIANT="noble"
 FROM ubuntu:${VARIANT}
 
 LABEL maintainer="Nauris Linde <nauris.linde@giraffe360.com>"
@@ -8,6 +8,13 @@ LABEL version="1.0"
 
 # Restate the variant to use it later on in the llvm and cmake installations
 ARG VARIANT
+RUN if [ "$VARIANT" = "noble" ]; then \
+    if id "ubuntu" &>/dev/null; then \
+    echo "Deleting user 'ubuntu'  for $VARIANT" && userdel -f -r ubuntu || echo "Failed to delete ubuntu user for $VARIANT"; \
+    else \
+    echo "User 'ubuntu' does not exist for $VARIANT"; \
+    fi; \
+    fi
 
 ARG USERNAME=vscode
 ARG USER_UID=1000
@@ -32,12 +39,14 @@ RUN apt-get update -qq && export DEBIAN_FRONTEND=noninteractive && \
     software-properties-common wget apt-utils file zip \
     openssh-client gpg-agent socat rsync \
     make ninja-build git \
-    python3 python3-pip
+    python3 python3-pip \
+    zsh fonts-firacode \
+    locales curl
 
 # User-settable versions:
-# This Dockerfile should support gcc-[7, 8, 9, 10, 11, 12, 13] and clang-[10, 11, 12, 13, 14, 15, 16]
+# This Dockerfile should support gcc-[7, 8, 9, 10, 11, 12, 13, 14] and clang-[10, 11, 12, 13, 14, 15, 16]
 # Earlier versions of clang will require significant modifications to the IWYU section
-ARG GCC_VER="11"
+ARG GCC_VER="14"
 # Add gcc-${GCC_VER}
 RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
     apt-get update -qq && export DEBIAN_FRONTEND=noninteractive && \
@@ -48,7 +57,7 @@ RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
 RUN update-alternatives --install /usr/bin/gcc gcc $(which gcc-${GCC_VER}) 100
 RUN update-alternatives --install /usr/bin/g++ g++ $(which g++-${GCC_VER}) 100
 
-ARG LLVM_VER="13"
+ARG LLVM_VER="18"
 # Add clang-${LLVM_VER}
 ARG LLVM_URL="http://apt.llvm.org/${VARIANT}/"
 ARG LLVM_PKG="llvm-toolchain-${VARIANT}-${LLVM_VER}"
@@ -74,7 +83,7 @@ RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/nul
     | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null && \
     apt-add-repository -y "deb ${CMAKE_URL} ${CMAKE_PKG} main" && \
     apt-get update -qq && export DEBIAN_FRONTEND=noninteractive && \
-    apt-get install -y --no-install-recommends cmake cmake-curses-gui
+    apt-get install -y --no-install-recommends cmake cmake-curses-gui cmake-format
 
 # Install editors
 RUN apt-get update -qq && export DEBIAN_FRONTEND=noninteractive && \
@@ -84,11 +93,7 @@ RUN apt-get update -qq && export DEBIAN_FRONTEND=noninteractive && \
 # Install optional dependecies
 RUN apt-get update -qq && export DEBIAN_FRONTEND=noninteractive && \
     apt-get install -y --no-install-recommends \
-    doxygen graphviz ccache cppcheck libomp-dev
-
-# Install NodeJS
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - && \
-    apt-get install -y nodejs
+    doxygen graphviz ccache cppcheck libomp-dev nodejs default-jdk
 
 # Install include-what-you-use
 ENV IWYU /home/iwyu
@@ -112,6 +117,11 @@ RUN mkdir -p $(include-what-you-use -print-resource-dir 2>/dev/null)
 RUN ln -s $(readlink -f /usr/lib/clang/${LLVM_VER}/include) \
     $(include-what-you-use -print-resource-dir 2>/dev/null)/include
 
+# Install C++ Dependencies
+RUN apt-get update -qq && export DEBIAN_FRONTEND=noninteractive && \
+    apt-get install -y --no-install-recommends \
+    libtbb-dev
+
 ## Cleanup cached apt data we don't need anymore
 RUN apt-get autoremove -y && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -127,9 +137,18 @@ ENV CXX=${CXX:-"g++"}
 
 USER $USERNAME
 
-ENV CPM_SOURCE_CACHE=/home/$USERNAME/.cache/CPM
-# Include project
-#ADD . /workspaces/cpp_starter_project
-#WORKDIR /workspaces/cpp_starter_project
+# Install Oh My ZSH!
+ENV TERM xterm
+ENV SHELL /bin/zsh
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
-CMD ["/bin/bash"]
+RUN curl -fsSL https://starship.rs/install.sh | sh -s -- -y
+RUN echo 'eval "$(starship init zsh)"' >> ~/.zshrc
+
+RUN git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+RUN git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+RUN git clone https://github.com/zsh-users/zsh-completions.git ~/.oh-my-zsh/custom/plugins/zsh-completions
+RUN sed -i '/^plugins/c\plugins=(zsh-autosuggestions zsh-syntax-highlighting zsh-completions)' ~/.zshrc
+RUN sed -i '/^ZSH_THEME/c\ZSH_THEME=""' ~/.zshrc
+
+ENV CPM_SOURCE_CACHE=/home/$USERNAME/.cache/CPM

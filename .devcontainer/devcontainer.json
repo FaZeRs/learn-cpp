@@ -3,9 +3,9 @@
     "build": {
         "dockerfile": "Dockerfile",
         "args": {
-            "VARIANT": "jammy",
-            "GCC_VER": "13",
-            "LLVM_VER": "16"
+            "VARIANT": "noble",
+            "GCC_VER": "14",
+            "LLVM_VER": "18"
         }
     },
     "runArgs": [
@@ -21,20 +21,14 @@
             },
             "extensions": [
                 "ms-vscode.cpptools",
+                "jeff-hykin.better-cpp-syntax",
                 "ms-vscode.cmake-tools",
                 "twxs.cmake",
-                "ms-vscode.cpptools-themes",
+                "cheshirekow.cmake-format",
                 "cschlosser.doxdocgen",
-                "eamodio.gitlens",
-                "ms-python.python",
-                "ms-python.vscode-pylance",
-                "mutantdino.resourcemonitor",
-                "github.copilot",
-                "github.copilot-labs",
-                "github.vscode-github-actions",
-                "xaver.clang-format",
-                "sonarsource.sonarlint-vscode",
-                "github.copilot-chat"
+                "streetsidesoftware.code-spell-checker",
+                "editorconfig.editorconfig",
+                "sonarsource.sonarlint-vscode"
             ]
         }
     },
@@ -45,12 +39,6 @@
     "features": {
         "ghcr.io/devcontainers/features/git:1": {
             "version": "latest"
-        },
-        "ghcr.io/devcontainers/features/git-lfs:1": {
-            "version": "latest"
-        },
-        "ghcr.io/devcontainers/features/node:1": {
-            "version": "lts",
         }
     }
 }
