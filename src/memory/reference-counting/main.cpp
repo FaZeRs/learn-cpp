@@ -164,6 +164,7 @@ int main() {
 
   auto res2 = std::move(res1);  // res1 is now nullptr
 
+  std::println("Reference count: {}", res1.use_count());
   if (res2.unique()) {
     std::println("res2 is unique");
   }
