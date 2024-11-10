@@ -94,7 +94,7 @@ class FileWatcher {
               std::this_thread::sleep_for(polling_interval_);
             }
           });
-    } catch (const std::exception& e) {
+    } catch (const std::exception& /*e*/) {
       return std::unexpected(
           make_error_code(FileWatcherError::WatcherStartFailed));
     }
@@ -161,7 +161,7 @@ class FileWatcher {
 
       paths.insert(std::ranges::begin(entries), std::ranges::end(entries));
       return paths;
-    } catch (const std::exception& e) {
+    } catch (const std::exception& /*e*/) {
       return std::unexpected(make_error_code(FileWatcherError::ScanFailed));
     }
   }

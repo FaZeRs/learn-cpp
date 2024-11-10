@@ -1,1 +1,3 @@
-add_subdirectory(watcher)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  add_subdirectory(watcher)
+endif()
