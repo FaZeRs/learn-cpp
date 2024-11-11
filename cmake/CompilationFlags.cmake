@@ -35,7 +35,3 @@ endif()
 if(MSVC)
   add_definitions(/MP)
 endif()
-
-if(APPLE)
-  add_definitions("-stdlib=libc++ -std=c++${CMAKE_CXX_STANDARD}")
-endif()
