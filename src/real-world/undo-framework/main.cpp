@@ -312,8 +312,6 @@ class CommandManager {
       observer->onCommandExecuted(*cmd);
     }
 
-    history_.push_back(cmd);
-
     if (cmd->canUndo()) {
       undo_stack_.push_back(std::move(cmd));
       redo_stack_.clear();
@@ -378,7 +376,6 @@ class CommandManager {
  private:
   std::vector<std::shared_ptr<Command>> undo_stack_;
   std::vector<std::shared_ptr<Command>> redo_stack_;
-  std::vector<std::shared_ptr<Command>> history_;
   const size_t max_undo_levels_;
   std::shared_ptr<BulkCommand> current_group_;
   std::vector<std::shared_ptr<CommandObserver>> observers_;
