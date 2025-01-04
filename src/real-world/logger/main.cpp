@@ -48,15 +48,174 @@ struct LogMessage {
       : location(loc), fmt(format), args(std::forward<Args>(arguments)...) {}
 };
 
+struct LogEntry {
+  std::chrono::system_clock::time_point timestamp;
+  LogLevel level;
+  std::string message;
+  std::string_view file;
+  uint_least32_t line;
+  std::string_view function;
+  std::thread::id thread_id;
+
+  auto operator<=>(const LogEntry&) const = default;
+};
+
+constexpr std::pair<LogColor, std::string_view> getLevelInfo(LogLevel level) {
+  switch (level) {
+    using enum LogLevel;
+    case Debug:
+      return {LogColor::Blue, "DEBUG"};
+    case Info:
+      return {LogColor::Green, "INFO"};
+    case Warning:
+      return {LogColor::Yellow, "WARN"};
+    case Error:
+      return {LogColor::Red, "ERROR"};
+    case Critical:
+      return {LogColor::Magenta, "CRIT"};
+  }
+  return {LogColor::White, "UNKNOWN"};
+}
+
+constexpr std::string formatLogMessage(const LogEntry& entry,
+                                       std::string_view level_str,
+                                       std::string message_format) {
+  auto result = message_format;
+  const std::array<std::pair<std::string_view, std::string>, 7> replacements = {
+      {{"{timestamp}", std::format("{:%Y-%m-%d %H:%M:%S}", entry.timestamp)},
+       {"{level}", std::string(level_str)},
+       {"{message}", entry.message},
+       {"{file}", std::string(entry.file)},
+       {"{line}", std::to_string(entry.line)},
+       {"{function}", std::string(entry.function)},
+       {"{thread}", std::format("{}", entry.thread_id)}}};
+
+  for (const auto& [pattern, value] : replacements) {
+    size_t pos = 0;
+    while ((pos = result.find(pattern, pos)) != std::string::npos) {
+      result.replace(pos, pattern.length(), value);
+      pos += value.length();
+    }
+  }
+
+  return result;
+}
+
+class LogSink {
+ public:
+  virtual ~LogSink() = default;
+  virtual void write(const LogEntry& entry) = 0;
+  virtual void flush() = 0;
+  virtual void setMessageFormat(std::string_view message_format) = 0;
+};
+
+class ConsoleSink : public LogSink {
+ public:
+  void write(const LogEntry& entry) override {
+    auto [color, level_str] = getLevelInfo(entry.level);
+    std::println("\033[{}m{}\033[0m", static_cast<int>(color),
+                 formatLogMessage(entry, level_str, message_format_));
+  }
+
+  void flush() override {}  // Console output is immediately flushed
+
+  void setMessageFormat(std::string_view message_format) override {
+    message_format_ = message_format;
+  }
+
+ private:
+  std::string message_format_ = "{timestamp} [{level}] {message}";
+};
+
+class FileSink : public LogSink {
+ public:
+  explicit FileSink(const std::string& filename) {
+    file_output_.open(filename, std::ios::app);
+    if (!file_output_) {
+      throw std::runtime_error("Failed to open log file");
+    }
+  }
+
+  void write(const LogEntry& entry) override {
+    auto [_, level_str] = getLevelInfo(entry.level);
+    file_output_ << formatLogMessage(entry, level_str, message_format_)
+                 << std::endl;
+  }
+
+  void flush() override { file_output_.flush(); }
+
+  void setMessageFormat(std::string_view message_format) override {
+    message_format_ = message_format;
+  }
+
+ private:
+  std::ofstream file_output_;
+  std::string message_format_ = "{timestamp} [{level}] {message}";
+};
+
+class RotatingFileSink : public LogSink {
+ public:
+  RotatingFileSink(const std::string& filename, size_t max_size,
+                   size_t max_files)
+      : filename_(filename), max_size_(max_size), max_files_(max_files) {
+    file_output_.open(filename, std::ios::app);
+    if (!file_output_) {
+      throw std::runtime_error("Failed to open log file");
+    }
+  }
+
+  void write(const LogEntry& entry) override {
+    if (shouldRotate()) {
+      rotate();
+    }
+    auto [_, level_str] = getLevelInfo(entry.level);
+    file_output_ << formatLogMessage(entry, level_str, message_format_)
+                 << std::endl;
+  }
+
+  void flush() override { file_output_.flush(); }
+
+  void setMessageFormat(std::string_view message_format) override {
+    message_format_ = message_format;
+  }
+
+ private:
+  bool shouldRotate() {
+    file_output_.seekp(0, std::ios::end);
+    return static_cast<size_t>(file_output_.tellp()) >= max_size_;
+  }
+
+  void rotate() {
+    file_output_.close();
+
+    for (size_t i = max_files_; i-- > 0;) {
+      std::filesystem::path current =
+          filename_ + (i > 0 ? "." + std::to_string(i) : "");
+      std::filesystem::path next = filename_ + "." + std::to_string(i + 1);
+
+      if (std::filesystem::exists(current)) {
+        if (i == max_files_ - 1) {
+          std::filesystem::remove(current);
+        } else {
+          std::filesystem::rename(current, next);
+        }
+      }
+    }
+
+    file_output_.open(filename_);
+  }
+
+  std::string filename_;
+  size_t max_size_;
+  size_t max_files_;
+  std::ofstream file_output_;
+  std::string message_format_ = "{timestamp} [{level}] {message}";
+};
+
 class Logger {
  public:
   struct Config {
     LogLevel min_level = LogLevel::Debug;
-    std::string log_file;
-    size_t max_file_size = 10 * 1024 * 1024;  // 10MB
-    size_t max_files = 5;
-    bool console_output = true;
-    std::string_view message_format = "[{level}] {message}";
     size_t buffer_size = 1024;
     bool async_processing = true;
     std::chrono::milliseconds flush_interval{1000};
@@ -84,16 +243,15 @@ class Logger {
   std::expected<void, std::error_code> configure(const Config& config) {
     std::scoped_lock lock(mutex_);
     config_ = config;
-    if (!config_.log_file.empty()) {
-      file_output_.open(config_.log_file, std::ios::app);
-      if (!file_output_) {
-        return std::unexpected(std::make_error_code(std::errc::io_error));
-      }
-    }
     if (config_.async_processing) {
       startWorker();
     }
     return {};
+  }
+
+  void addSink(std::shared_ptr<LogSink> sink) {
+    std::scoped_lock lock(mutex_);
+    sinks_.push_back(std::move(sink));
   }
 
   template <typename... Args>
@@ -157,18 +315,6 @@ class Logger {
  private:
   Logger() = default;
 
-  struct LogEntry {
-    std::chrono::system_clock::time_point timestamp;
-    LogLevel level;
-    std::string message;
-    std::string_view file;
-    uint_least32_t line;
-    std::string_view function;
-    std::thread::id thread_id;
-
-    auto operator<=>(const LogEntry&) const = default;
-  };
-
   void processLogs(const bool force = false) {
     if (!force && log_queue_.size() < config_.buffer_size) {
       return;
@@ -184,100 +330,14 @@ class Logger {
       log_queue_.pop();
     }
 
-    std::span batch_span{batch};
-    for (const auto& entry : batch_span) {
-      auto [color, level_str] = getLevelInfo(entry.level);
-      std::string formatted_message = formatLogMessage(entry, level_str);
-
-      if (config_.console_output) {
-        std::println("\033[{}m{}\033[0m", static_cast<int>(color),
-                     formatted_message);
-      }
-
-      if (file_output_.is_open()) {
-        writeToFile(formatted_message);
+    for (const auto& entry : batch) {
+      for (auto& sink : sinks_) {
+        sink->write(entry);
       }
     }
 
     logs_.insert(logs_.end(), std::make_move_iterator(batch.begin()),
                  std::make_move_iterator(batch.end()));
-  }
-
-  void writeToFile(const std::string& message) {
-    if (shouldRotateLog()) {
-      rotateLog();
-    }
-    file_output_ << message << std::endl;
-  }
-
-  bool shouldRotateLog() {
-    if (!file_output_.is_open()) return false;
-    file_output_.seekp(0, std::ios::end);
-    return static_cast<size_t>(file_output_.tellp()) >= config_.max_file_size;
-  }
-
-  void rotateLog() {
-    file_output_.close();
-
-    // Rotate existing log files
-    for (size_t i = config_.max_files; i-- > 0;) {
-      std::filesystem::path current =
-          config_.log_file + (i > 0 ? "." + std::to_string(i) : "");
-      std::filesystem::path next =
-          config_.log_file + "." + std::to_string(i + 1);
-
-      if (std::filesystem::exists(current)) {
-        if (i == config_.max_files - 1) {
-          std::filesystem::remove(current);
-        } else {
-          std::filesystem::rename(current, next);
-        }
-      }
-    }
-
-    file_output_.open(config_.log_file);
-  }
-
-  constexpr std::pair<LogColor, std::string_view> getLevelInfo(
-      LogLevel level) const {
-    switch (level) {
-      using enum LogLevel;
-      case Debug:
-        return {LogColor::Blue, "DEBUG"};
-      case Info:
-        return {LogColor::Green, "INFO"};
-      case Warning:
-        return {LogColor::Yellow, "WARN"};
-      case Error:
-        return {LogColor::Red, "ERROR"};
-      case Critical:
-        return {LogColor::Magenta, "CRIT"};
-    }
-    return {LogColor::White, "UNKNOWN"};
-  }
-
-  constexpr std::string formatLogMessage(const LogEntry& entry,
-                                         std::string_view level_str) const {
-    auto result = std::string(config_.message_format);
-
-    const std::array<std::pair<std::string_view, std::string>, 7> replacements =
-        {{{"{timestamp}", std::format("{:%Y-%m-%d %H:%M:%S}", entry.timestamp)},
-          {"{level}", std::string(level_str)},
-          {"{message}", entry.message},
-          {"{file}", std::string(entry.file)},
-          {"{line}", std::to_string(entry.line)},
-          {"{function}", std::string(entry.function)},
-          {"{thread}", std::format("{}", entry.thread_id)}}};
-
-    for (const auto& [pattern, value] : replacements) {
-      size_t pos = 0;
-      while ((pos = result.find(pattern, pos)) != std::string::npos) {
-        result.replace(pos, pattern.length(), value);
-        pos += value.length();
-      }
-    }
-
-    return result;
   }
 
   void startWorker() {
@@ -292,30 +352,34 @@ class Logger {
   }
 
   Config config_;
-  std::ofstream file_output_;
   std::mutex mutex_;
   std::queue<LogEntry> log_queue_;
   std::vector<LogEntry> logs_;
   std::jthread worker_thread_;
   std::atomic<bool> processing_enabled_{true};
+  std::vector<std::shared_ptr<LogSink>> sinks_;
 };
 
 int main() {
   auto& logger = Logger::getInstance();
 
-  Logger::Config config{
-      .min_level = LogLevel::Debug,
-      .log_file = "application.log",
-      .max_file_size = 1024 * 1024,  // 1MB
-      .max_files = 3,
-      .console_output = true,
-      .message_format = "{timestamp} [{level}] {message} ({file}:{line})",
-      .async_processing = true,
-      .flush_interval = std::chrono::milliseconds{1000}};
+  Logger::Config config{.min_level = LogLevel::Debug,
+                        .async_processing = true,
+                        .flush_interval = std::chrono::milliseconds{1000}};
   if (auto result = logger.configure(config); !result) {
     std::println("Failed to configure logger: {}", result.error().message());
     return 1;
   }
+
+  const auto console_sink = std::make_shared<ConsoleSink>();
+  console_sink->setMessageFormat(
+      "{timestamp} [{level}] {message} ({file}:{line})");
+  logger.addSink(console_sink);
+  logger.addSink(std::make_shared<FileSink>("basic.log"));
+  logger.addSink(std::make_shared<RotatingFileSink>("rotating.log",
+                                                    1024 * 1024,  // 1MB
+                                                    3  // Keep 3 files
+                                                    ));
 
   logger.info("Application started");
   logger.debug("Debug value: {}", 42);
