@@ -1,2 +1,6 @@
 add_subdirectory(undo-framework)
 add_subdirectory(logger)
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  add_subdirectory(ui)
+endif()
+
