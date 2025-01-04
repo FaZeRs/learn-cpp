@@ -3,4 +3,4 @@ add_subdirectory(logger)
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   add_subdirectory(ui)
 endif()
-
+add_subdirectory(command-line)
