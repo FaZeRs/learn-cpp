@@ -67,10 +67,10 @@ constexpr void quick_sort(Range&& range) {
 }
 
 template <Sortable T>
-constexpr void quick_sort(std::span<T> arr) noexcept {
+constexpr void quick_sort(std::span<T> arr) {
   if (arr.size() < 2) return;
 
-  size_t p = partition(arr);
+  const size_t p = partition(arr);
 
   if (p > 0) {
     quick_sort(arr.subspan(0, p));

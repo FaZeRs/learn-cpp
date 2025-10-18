@@ -13,8 +13,7 @@ class WeatherData {
  public:
   void registerObserver(Observer *o) { m_observers.push_back(o); }
   void removeObserver(Observer *o) {
-    m_observers.erase(std::remove(m_observers.begin(), m_observers.end(), o),
-                      m_observers.end());
+   std::erase(m_observers, o);
   }
   void notifyObservers();
   void measurementsChanged() { notifyObservers(); }

@@ -1,7 +1,6 @@
 #include <condition_variable>
 #include <functional>
 #include <future>
-#include <iostream>
 #include <mutex>
 #include <print>
 #include <queue>
@@ -45,12 +44,20 @@ class ThreadPool {
     condition.notify_all();
   }
 
+  ThreadPool(const ThreadPool&) = delete;
+  ThreadPool& operator=(const ThreadPool&) = delete;
+  ThreadPool(ThreadPool&&) = delete;
+  ThreadPool& operator=(ThreadPool&&) = delete;
+
   template <typename F, typename... Args>
     requires std::invocable<F, Args...>
   [[nodiscard]] auto enqueue(F&& f, Args&&... args) {
     using return_type = std::invoke_result_t<F, Args...>;
     auto task = std::make_shared<std::packaged_task<return_type()>>(
-        std::bind_front(std::forward<F>(f), std::forward<Args>(args)...));
+        [f = std::forward<F>(f),
+         ... args = std::forward<Args>(args)]() mutable -> return_type {
+          return std::invoke(std::move(f), std::move(args)...);
+        });
 
     std::future<return_type> result = task->get_future();
     {

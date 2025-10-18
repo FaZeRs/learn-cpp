@@ -21,14 +21,38 @@ using namespace std::string_view_literals;
 /**
  * @brief Enum representing file operation errors
  */
-enum class FileError {
-  NotFound,
-  AccessDenied,
-  AlreadyExists,
-  IoError,
-  InvalidPath,
-  Unknown
+enum class FileError : uint8_t {
+  NotFound = 0,
+  AccessDenied = 1,
+  AlreadyExists = 2,
+  IoError = 3,
+  InvalidPath = 4,
+  Unknown = 5
 };
+
+/**
+ * @brief Get a string representation of a FileError
+ * @param error The error to convert
+ * @return std::string_view String representation of the error
+ */
+[[nodiscard]] constexpr std::string_view fileErrorToString(FileError error) {
+  switch (error) {
+    case FileError::NotFound:
+      return "File not found";
+    case FileError::AccessDenied:
+      return "Access denied";
+    case FileError::AlreadyExists:
+      return "File already exists";
+    case FileError::IoError:
+      return "I/O error";
+    case FileError::InvalidPath:
+      return "Invalid path";
+    case FileError::Unknown:
+      return "Unknown error";
+    default:
+      return "Unrecognized error";
+  }
+}
 
 /**
  * @brief Class representing a file in the file system
@@ -176,8 +200,12 @@ class File {
         return AsyncFileLoader{
             std::coroutine_handle<promise_type>::from_promise(*this)};
       }
-      std::suspend_never initial_suspend() noexcept { return {}; }
-      std::suspend_always final_suspend() noexcept { return {}; }
+      static constexpr std::suspend_never initial_suspend() noexcept {
+        return {};
+      }
+      static constexpr std::suspend_always final_suspend() noexcept {
+        return {};
+      }
       void return_value(std::expected<std::string, FileError> value) {
         value_ = std::move(value);
       }
@@ -193,6 +221,10 @@ class File {
     ~AsyncFileLoader() {
       if (handle_) handle_.destroy();
     }
+    AsyncFileLoader(const AsyncFileLoader&) = delete;
+    AsyncFileLoader& operator=(const AsyncFileLoader&) = delete;
+    AsyncFileLoader(AsyncFileLoader&&) = delete;
+    AsyncFileLoader& operator=(AsyncFileLoader&&) = delete;
 
     [[nodiscard]] std::expected<std::string, FileError> result() const {
       return handle_.promise().value_;
@@ -290,7 +322,7 @@ class Directory {
    * @brief Create the directory if it doesn't exist
    * @return std::expected<void, FileError> Success or error
    */
-  std::expected<void, FileError> create() const {
+  [[nodiscard]] std::expected<void, FileError> create() const {
     if (exists()) {
       return {};
     }
@@ -316,12 +348,12 @@ class Directory {
     }
 
     try {
-      return std::filesystem::directory_iterator{dir_path_} |
-             std::views::filter(
-                 [](const auto& entry) { return entry.is_regular_file(); }) |
-             std::views::transform(
-                 [](const auto& entry) { return File{entry.path()}; }) |
-             std::ranges::to<std::vector>();
+      return std::ranges::to<std::vector<File>>(
+          std::filesystem::directory_iterator{dir_path_} |
+          std::views::filter(
+              [](const auto& entry) { return entry.is_regular_file(); }) |
+          std::views::transform(
+              [](const auto& entry) { return File{entry.path()}; }));
     } catch (const std::exception& e) {
       std::println("Error listing files: {}", e.what());
       return {};
@@ -338,12 +370,12 @@ class Directory {
     }
 
     try {
-      return std::filesystem::directory_iterator{dir_path_} |
-             std::views::filter(
-                 [](const auto& entry) { return entry.is_directory(); }) |
-             std::views::transform(
-                 [](const auto& entry) { return Directory{entry.path()}; }) |
-             std::ranges::to<std::vector>();
+      return std::ranges::to<std::vector<Directory>>(
+          std::filesystem::directory_iterator{dir_path_} |
+          std::views::filter(
+              [](const auto& entry) { return entry.is_directory(); }) |
+          std::views::transform(
+              [](const auto& entry) { return Directory{entry.path()}; }));
     } catch (const std::exception& e) {
       std::println("Error listing subdirectories: {}", e.what());
       return {};
@@ -397,7 +429,11 @@ class FileManager {
       : current_directory_(initial_path) {
     if (!current_directory_.exists()) {
       std::println("Warning: Initial directory does not exist. Creating it.");
-      current_directory_.create();
+      auto result = current_directory_.create();
+      if (!result) {
+        std::println("Failed to create initial directory: {}",
+                     fileErrorToString(result.error()));
+      }
     }
   }
 
@@ -430,8 +466,8 @@ class FileManager {
    * @param content Initial content of the file
    * @return std::expected<File, FileError> The created file or error
    */
-  std::expected<File, FileError> createFile(std::string_view file_name,
-                                            std::string_view content = "") {
+  [[nodiscard]] std::expected<File, FileError> createFile(
+      std::string_view file_name, std::string_view content = "") const {
     auto file_path = current_directory_.getPath() / file_name;
     File file(file_path);
 
@@ -477,8 +513,8 @@ class FileManager {
    * @param content New content of the file
    * @return std::expected<void, FileError> Success or error
    */
-  std::expected<void, FileError> updateFile(std::string_view file_name,
-                                            std::string_view content) const {
+  [[nodiscard]] std::expected<void, FileError> updateFile(
+      std::string_view file_name, std::string_view content) const {
     auto file_path = current_directory_.getPath() / file_name;
     File file(file_path);
 
@@ -495,7 +531,8 @@ class FileManager {
    * @param file_name Name of the file
    * @return std::expected<void, FileError> Success or error
    */
-  std::expected<void, FileError> deleteFile(std::string_view file_name) const {
+  [[nodiscard]] std::expected<void, FileError> deleteFile(
+      std::string_view file_name) const {
     auto file_path = current_directory_.getPath() / file_name;
 
     try {
@@ -514,8 +551,8 @@ class FileManager {
    * @param dir_name Name of the directory
    * @return std::expected<Directory, FileError> The created directory or error
    */
-  std::expected<Directory, FileError> createDirectory(
-      std::string_view dir_name) {
+  [[nodiscard]] std::expected<Directory, FileError> createDirectory(
+      std::string_view dir_name) const {
     auto dir_path = current_directory_.getPath() / dir_name;
     Directory dir(dir_path);
 
@@ -540,10 +577,10 @@ class FileManager {
   [[nodiscard]] std::vector<File> findFiles(std::string_view pattern) const {
     auto files = current_directory_.listFiles();
 
-    return files | std::views::filter([pattern](const File& file) {
-             return file.getName().contains(pattern);
-           }) |
-           std::ranges::to<std::vector>();
+    return std::ranges::to<std::vector<File>>(
+        files | std::views::filter([pattern](const File& file) {
+          return file.getName().contains(pattern);
+        }));
   }
 
   /**
@@ -571,7 +608,7 @@ class FileManager {
    * @param target_file_name Target file name
    * @return std::expected<void, FileError> Success or error
    */
-  std::expected<void, FileError> copyFile(
+  [[nodiscard]] std::expected<void, FileError> copyFile(
       std::string_view source_file_name,
       std::string_view target_file_name) const {
     auto source_path = current_directory_.getPath() / source_file_name;
@@ -600,7 +637,7 @@ class FileManager {
    * @param target_file_name Target file name
    * @return std::expected<void, FileError> Success or error
    */
-  std::expected<void, FileError> moveFile(
+  [[nodiscard]] std::expected<void, FileError> moveFile(
       std::string_view source_file_name,
       std::string_view target_file_name) const {
     auto source_path = current_directory_.getPath() / source_file_name;
@@ -669,30 +706,6 @@ class FileManager {
  private:
   Directory current_directory_;
 };
-
-/**
- * @brief Get a string representation of a FileError
- * @param error The error to convert
- * @return std::string_view String representation of the error
- */
-[[nodiscard]] constexpr std::string_view fileErrorToString(FileError error) {
-  switch (error) {
-    case FileError::NotFound:
-      return "File not found";
-    case FileError::AccessDenied:
-      return "Access denied";
-    case FileError::AlreadyExists:
-      return "File already exists";
-    case FileError::IoError:
-      return "I/O error";
-    case FileError::InvalidPath:
-      return "Invalid path";
-    case FileError::Unknown:
-      return "Unknown error";
-    default:
-      return "Unrecognized error";
-  }
-}
 
 /**
  * @brief Print file information in a formatted way
@@ -786,9 +799,24 @@ void demo() {
 
     // Create multiple files for batch operations
     std::println("\nCreating multiple files for batch operations...");
-    manager.createFile("batch1.txt"sv, "Batch file 1 content"sv);
-    manager.createFile("batch2.txt"sv, "Batch file 2 content"sv);
-    manager.createFile("batch3.txt"sv, "Batch file 3 content"sv);
+    const auto batch1 =
+        manager.createFile("batch1.txt"sv, "Batch file 1 content"sv);
+    if (!batch1) {
+      std::println("Failed to create batch1 file: {}",
+                   fileErrorToString(batch1.error()));
+    }
+    const auto batch2 =
+        manager.createFile("batch2.txt"sv, "Batch file 2 content"sv);
+    if (!batch2) {
+      std::println("Failed to create batch2 file: {}",
+                   fileErrorToString(batch2.error()));
+    }
+    const auto batch3 =
+        manager.createFile("batch3.txt"sv, "Batch file 3 content"sv);
+    if (!batch3) {
+      std::println("Failed to create batch3 file: {}",
+                   fileErrorToString(batch3.error()));
+    }
 
     // Batch process files
     std::println("\nBatch processing files:");
@@ -827,7 +855,12 @@ void demo() {
     }
 
     // Create another file for copy demonstration
-    manager.createFile("source.txt"sv, "This file will be copied."sv);
+    const auto source_file =
+        manager.createFile("source.txt"sv, "This file will be copied."sv);
+    if (!source_file) {
+      std::println("Failed to create source file: {}",
+                   fileErrorToString(source_file.error()));
+    }
 
     // Copy a file
     std::println("\nCopying a file...");
@@ -892,8 +925,12 @@ void demo() {
                    manager.getCurrentDirectory().getPath().string());
 
       // Create a file in subdirectory
-      manager.createFile("subdir_file.txt"sv,
-                         "This file is in the subdirectory."sv);
+      const auto subdir_file = manager.createFile(
+          "subdir_file.txt"sv, "This file is in the subdirectory."sv);
+      if (!subdir_file) {
+        std::println("Failed to create subdir file: {}",
+                     fileErrorToString(subdir_file.error()));
+      }
 
       // List files in subdirectory
       std::println("\nListing files in subdirectory:");

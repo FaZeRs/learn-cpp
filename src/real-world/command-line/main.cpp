@@ -16,10 +16,10 @@
 
 using namespace std::string_view_literals;
 
-enum class ArgType {
-  Flag,       // --verbose
-  KeyValue,   // --output=file.txt
-  Positional  // command arg1 arg2
+enum class ArgType : uint8_t {
+  Flag = 0,       // --verbose
+  KeyValue = 1,   // --output=file.txt
+  Positional = 2  // command arg1 arg2
 };
 
 struct ArgDefinition {
@@ -60,11 +60,11 @@ struct ParseResult {
 };
 
 struct ParseError {
-  enum class Code {
-    NoArguments,
-    UnknownArgument,
-    MissingRequired,
-    InvalidValue
+  enum class Code : uint8_t {
+    NoArguments = 0,
+    UnknownArgument = 1,
+    MissingRequired = 2,
+    InvalidValue = 3
   };
 
   Code code;
@@ -96,14 +96,16 @@ class ArgumentParser {
 
   template <StringLike Name, StringLike Desc>
   class ArgBuilder {
-    ArgumentParser& parser;
+    ArgumentParser* parser;
     ArgDefinition def;
 
    public:
     ArgBuilder(ArgumentParser& p, Name&& name, Desc&& desc, ArgType type)
-        : parser(p),
-          def{std::string_view(std::forward<Name>(name)), "",
-              std::string_view(std::forward<Desc>(desc)), type} {}
+        : parser(&p),
+          def{.name = std::string_view(std::move(name)),
+              .short_name = "",
+              .description = std::string_view(std::move(desc)),
+              .type = type} {}
 
     ArgBuilder& shortName(std::string_view short_name) {
       def.short_name = short_name;
@@ -126,8 +128,8 @@ class ArgumentParser {
     }
 
     ArgumentParser& build() {
-      parser.m_definitions.push_back(std::move(def));
-      return parser;
+      parser->m_definitions.push_back(std::move(def));
+      return *parser;
     }
   };
 
@@ -141,7 +143,7 @@ class ArgumentParser {
   [[nodiscard]] std::expected<ParseResult, ParseError> parse(
       std::span<const char*> args) const {
     if (args.empty()) {
-      return std::unexpected(ParseError{ParseError::Code::NoArguments});
+      return std::unexpected(ParseError{.code = ParseError::Code::NoArguments});
     }
 
     ParseResult result;
@@ -151,8 +153,8 @@ class ArgumentParser {
           return def.type == ArgType::Positional;
         });
 
-    for (const auto& arg : args.subspan(1)) {
-      auto arg_view = std::string_view(arg);
+    for (const auto& argument : args.subspan(1)) {
+      auto arg_view = std::string_view(argument);
 
       if (arg_view.starts_with("--"sv)) {
         if (auto err = parseNamedArg(arg_view.substr(2), result.named_args)) {
@@ -166,8 +168,9 @@ class ArgumentParser {
 
         if (pos_def != std::ranges::end(positional_defs)) {
           result.named_args[pos_def->name] = ParsedArg{
-              pos_def->name,
-              std::variant<std::monostate, bool, std::string_view>{arg_view}};
+              .name = pos_def->name,
+              .value = std::variant<std::monostate, bool, std::string_view>{
+                  arg_view}};
         }
       }
     }
@@ -253,20 +256,24 @@ class ArgumentParser {
         m_definitions, [&name](const auto& def) { return def.name == name; });
 
     if (arg_def == m_definitions.end()) {
-      return ParseError{ParseError::Code::UnknownArgument, name};
+      return ParseError{.code = ParseError::Code::UnknownArgument,
+                        .context = name};
     }
 
     if (arg_def->validator && value.has_value()) {
       if (!arg_def->validator(*value)) {
-        return ParseError{ParseError::Code::InvalidValue, name};
+        return ParseError{.code = ParseError::Code::InvalidValue,
+                          .context = name};
       }
     }
 
     parsed_args[name] = ParsedArg{
-        name, arg_def->type == ArgType::Flag
-                  ? std::variant<std::monostate, bool, std::string_view>{true}
-                  : std::variant<std::monostate, bool, std::string_view>{
-                        value.value_or("")}};
+        .name = name,
+        .value =
+            arg_def->type == ArgType::Flag
+                ? std::variant<std::monostate, bool, std::string_view>{true}
+                : std::variant<std::monostate, bool, std::string_view>{
+                      value.value_or("")}};
     return std::nullopt;
   }
 
@@ -278,15 +285,20 @@ class ArgumentParser {
           return def.required;
         });
 
-    for (const auto& def : required_args) {
-      if (!parsed_args.contains(def.name)) {
-        return ParseError{ParseError::Code::MissingRequired, def.name};
-      }
+    auto missing =
+        std::ranges::find_if(required_args, [&parsed_args](const auto& def) {
+          return !parsed_args.contains(def.name);
+        });
+
+    if (missing != std::ranges::end(required_args)) {
+      return ParseError{.code = ParseError::Code::MissingRequired,
+                        .context = missing->name};
     }
     return std::nullopt;
   }
 
-  static constexpr std::string_view getTypeString(ArgType type) {
+  // cppcheck-suppress unusedPrivateFunction
+  [[nodiscard]] static constexpr std::string_view getTypeString(ArgType type) {
     switch (type) {
       case ArgType::Flag:
         return "[flag]";

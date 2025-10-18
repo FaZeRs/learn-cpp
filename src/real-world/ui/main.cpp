@@ -29,11 +29,12 @@ class XDisplayWrapper {
     }
     return *this;
   }
-
+  XDisplayWrapper(const XDisplayWrapper&) = delete;
+  XDisplayWrapper& operator=(const XDisplayWrapper&) = delete;
   ~XDisplayWrapper() { cleanup(); }
 
   [[nodiscard]] Display* get() const noexcept { return display_; }
-  operator Display*() const noexcept { return display_; }
+  explicit operator Display*() const noexcept { return display_; }
 
  private:
   explicit XDisplayWrapper(Display* display) : display_(display) {}
@@ -42,8 +43,6 @@ class XDisplayWrapper {
   }
 
   Display* display_;
-  XDisplayWrapper(const XDisplayWrapper&) = delete;
-  XDisplayWrapper& operator=(const XDisplayWrapper&) = delete;
 };
 
 class XWindowWrapper {
@@ -81,10 +80,12 @@ class XWindowWrapper {
     return *this;
   }
 
+  XWindowWrapper(const XWindowWrapper&) = delete;
+  XWindowWrapper& operator=(const XWindowWrapper&) = delete;
   ~XWindowWrapper() { cleanup(); }
 
   [[nodiscard]] Window get() const noexcept { return window_; }
-  operator Window() const noexcept { return window_; }
+  explicit operator Window() const noexcept { return window_; }
 
  private:
   Display* display_;
@@ -96,9 +97,6 @@ class XWindowWrapper {
   void cleanup() noexcept {
     if (window_) XDestroyWindow(display_, window_);
   }
-
-  XWindowWrapper(const XWindowWrapper&) = delete;
-  XWindowWrapper& operator=(const XWindowWrapper&) = delete;
 };
 
 template <typename T>
@@ -109,8 +107,8 @@ concept EventHandlerCallable = requires(T handler, const XEvent& event) {
 class EventLoop {
  public:
   template <EventHandlerCallable Handler>
-  static void run(const XDisplayWrapper& display, std::stop_token stop_token,
-                  Handler&& handler) {
+  static void run(const XDisplayWrapper& display,
+                  const std::stop_token& stop_token, Handler&& handler) {
     XEvent event;
     while (!stop_token.stop_requested()) {
       XNextEvent(display.get(), &event);
@@ -142,7 +140,7 @@ int main() {
   }
 
   std::jthread event_thread([&display](std::stop_token stop_token) {
-    EventLoop::run(display, stop_token, [](const XEvent& event) {
+    EventLoop::run(display, std::as_const(stop_token), [](const XEvent& event) {
       switch (event.type) {
         case Expose:
           return true;

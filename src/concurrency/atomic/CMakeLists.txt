@@ -1,10 +1,5 @@
-set(SOURCE_FILES
-    main.cpp)
+set(SOURCE_FILES main.cpp)
 
-add_executable(mutex
-    ${SOURCE_FILES})
+add_executable(atomic ${SOURCE_FILES})
 
-target_link_libraries(mutex PRIVATE
-    project_options
-    project_warnings
-)
+target_link_libraries(atomic PRIVATE project_options project_warnings)

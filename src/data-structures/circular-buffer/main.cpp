@@ -31,7 +31,7 @@ class CircularBuffer
 
   constexpr void push(const T& item) noexcept {
     std::lock_guard<std::mutex> lock(mutex_);
-    buffer[write_pos] = item;
+    buffer.at(write_pos) = item;
     advance_write_pos();
     if (full()) [[unlikely]] {
       advance_read_pos();
@@ -44,7 +44,7 @@ class CircularBuffer
     requires std::constructible_from<T, Args...>
   constexpr void emplace(Args&&... args) noexcept {
     std::lock_guard<std::mutex> lock(mutex_);
-    buffer[write_pos] = T(std::forward<Args>(args)...);
+    buffer.at(write_pos) = T(std::forward<Args>(args)...);
     advance_write_pos();
     if (full()) [[unlikely]] {
       advance_read_pos();
@@ -59,7 +59,7 @@ class CircularBuffer
       return std::nullopt;
     }
 
-    T item = buffer[read_pos];
+    T item = buffer.at(read_pos);
     advance_read_pos();
     --count;
     return item;

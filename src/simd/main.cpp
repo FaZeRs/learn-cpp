@@ -22,6 +22,7 @@ void simdVectorAdd(const std::vector<float>& a, const std::vector<float>& b,
     __m256 vb = _mm256_loadu_ps(&b[i]);
 
     // Perform vectorized addition
+    // NOLINTNEXTLINE(portability-simd-intrinsics)
     __m256 vresult = _mm256_add_ps(va, vb);
 
     // Store the result back to the result vector

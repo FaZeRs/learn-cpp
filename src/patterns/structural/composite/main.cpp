@@ -34,8 +34,7 @@ class GraphicGroup : public Graphic {
   void add(Graphic* graphic) { m_graphics.emplace_back(graphic); }
 
   void remove(Graphic* graphic) {
-    m_graphics.erase(std::remove(m_graphics.begin(), m_graphics.end(), graphic),
-                     m_graphics.end());
+    std::erase(m_graphics, graphic);
   }
 
   void draw() const override {

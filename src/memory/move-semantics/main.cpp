@@ -10,8 +10,7 @@
 class Resource {
  public:
   // Constructor
-  explicit constexpr Resource(std::string_view data = "")
-      : data_(std::move(data)) {
+  explicit constexpr Resource(std::string_view data = "") : data_(data) {
     std::println("Constructor called for: {}", data_);
   }
 
@@ -60,9 +59,11 @@ class Container {
  public:
   // Perfect forwarding constructor
   template <typename... Args>
-  explicit Container(Args&&... args) : resource_(std::forward<Args>(args)...) {
+  explicit Container(Args&&... args)
+      : resource_(std::forward<Args>(args)...) {  // NOLINT
     std::println("Container constructed with perfect forwarding");
   }
+  ~Container() = default;
 
   // Move constructor
   Container(Container&& other) noexcept
@@ -108,7 +109,8 @@ int main() {
   std::println("=== Basic Move Semantics ===");
   Resource r1("Original");
   Resource r2 = std::move(r1);  // Move constructor
-  std::println("r1 data after move: {}", r1.data());
+  // cppcheck-suppress accessMoved
+  std::println("r1 data after move: {}", r1.data());  // NOLINT
   std::println("r2 data after move: {}", r2.data());
 
   std::println("\n=== Perfect Forwarding ===");

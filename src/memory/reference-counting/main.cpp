@@ -16,10 +16,10 @@ class RefCounted {
   template <typename... Args>
   constexpr explicit RefCounted(Args&&... args) noexcept(
       std::is_nothrow_constructible_v<T, Args...>)
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
       : ctrl_(new ControlBlock(new T(std::forward<Args>(args)...))) {}
 
-  constexpr RefCounted(const RefCounted& other) noexcept {
-    ctrl_ = other.ctrl_;
+  constexpr RefCounted(const RefCounted& other) noexcept : ctrl_(other.ctrl_) {
     ctrl_->count++;
   }
 
@@ -116,6 +116,8 @@ class RefCounted {
         : data(ptr), count(1), creation_loc(loc) {}
     ControlBlock(const ControlBlock&) = delete;
     ControlBlock& operator=(const ControlBlock&) = delete;
+    ControlBlock(ControlBlock&&) = delete;
+    ControlBlock& operator=(ControlBlock&&) = delete;
     ~ControlBlock() { delete data; }
   };
 
@@ -130,6 +132,8 @@ class Resource {
   virtual ~Resource() { std::println("Resource '{}' destroyed", name_); }
   constexpr Resource(const Resource&) noexcept = default;
   constexpr Resource(Resource&&) noexcept = default;
+  constexpr Resource& operator=(const Resource&) noexcept = default;
+  constexpr Resource& operator=(Resource&&) noexcept = default;
 
   [[nodiscard]] constexpr const std::string& getName() const noexcept {
     return name_;
@@ -147,12 +151,14 @@ int main() {
 
   {
     // Create another reference
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
     auto res2 = res1;
     std::println("Resource pointer: {}", static_cast<void*>(res2.get()));
     std::println("{}", res2.debug_info());
     std::println("Reference count: {}", res1.use_count());
 
     // Create a third reference
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
     RefCounted<Resource> res3 = res2;
     std::println("Reference count: {}", res1.use_count());
 
@@ -164,6 +170,7 @@ int main() {
 
   auto res2 = std::move(res1);  // res1 is now nullptr
 
+  // cppcheck-suppress accessMoved
   std::println("Reference count: {}", res1.use_count());
   if (res2.unique()) {
     std::println("res2 is unique");

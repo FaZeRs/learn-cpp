@@ -15,7 +15,7 @@ int main() {
   // Calculate the range each thread will handle
   constexpr auto range_per_thread = n / num_threads;
   std::vector<int> indices(num_threads);
-  std::iota(indices.begin(), indices.end(), 0);
+  std::ranges::iota(indices, 0);
 
   // Summing up the partial sums in parallel
   const int total_sum = std::transform_reduce(

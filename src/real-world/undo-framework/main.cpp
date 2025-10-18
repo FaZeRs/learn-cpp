@@ -12,7 +12,7 @@
 
 using namespace std::chrono_literals;
 
-enum class CommandError {
+enum class CommandError : uint8_t {
   VALIDATION_FAILED,
   EXECUTION_FAILED,
   INVALID_STATE,
@@ -31,7 +31,7 @@ concept Commandlike = requires(T t) {
   { t.canUndo() } -> std::same_as<bool>;
 };
 
-enum class CommandState {
+enum class CommandState : uint8_t {
   IDLE,
   EXECUTING,
   EXECUTED,
@@ -49,11 +49,14 @@ concept ValidatableCommand = requires(T t) {
 
 class Command {
  public:
-  Command(std::string_view name = "Unnamed Command",
-          std::source_location loc = std::source_location::current())
+  explicit Command(std::string_view name = "Unnamed Command",
+                   std::source_location loc = std::source_location::current())
       : name_(name), location_(loc) {}
   virtual ~Command() = default;
-  [[nodiscard]] auto operator<=>(const Command&) const = default;
+  Command(const Command&) = delete;
+  Command& operator=(const Command&) = delete;
+  Command(Command&&) = delete;
+  Command& operator=(Command&&) = delete;
 
   virtual CommandResult<void> execute() = 0;
   virtual CommandResult<void> undo() = 0;
@@ -114,7 +117,7 @@ class MoveCommand : public Command {
               std::string_view name = "Unnamed Move Command")
       : Command(name), x_(x), y_(y), new_x_(new_x), new_y_(new_y) {}
 
-  CommandResult<void> validate() const override {
+  [[nodiscard]] CommandResult<void> validate() const override {
     if (new_x_ < 0 || new_y_ < 0) {
       return std::unexpected(CommandError::VALIDATION_FAILED);
     }
@@ -156,13 +159,13 @@ class MoveCommand : public Command {
 
 class ToggleCommand : public Command {
  public:
-  ToggleCommand(bool& value, std::string_view name = "Unnamed Toggle Command")
-      : Command(name), value_(value) {}
+  explicit ToggleCommand(bool& value,
+                         std::string_view name = "Unnamed Toggle Command")
+      : Command(name), value_(value), old_state_(value) {}
 
   CommandResult<void> execute() override {
     if (!canExecute()) return std::unexpected(CommandError::INVALID_STATE);
     begin();
-    old_state_ = value_;
     std::this_thread::sleep_for(1s);
     value_ = !value_;
     end();
@@ -214,16 +217,19 @@ class BulkCommand : public Command {
   std::vector<std::shared_ptr<Command>> commands;
 
  public:
-  BulkCommand(std::string_view name = "Unnamed Bulk Command") : Command(name) {}
+  explicit BulkCommand(std::string_view name = "Unnamed Bulk Command")
+      : Command(name) {}
 
-  void addCommand(std::shared_ptr<Command> cmd) { commands.push_back(cmd); }
+  void addCommand(const std::shared_ptr<Command>& cmd) {
+    commands.push_back(cmd);
+  }
 
   template <std::ranges::range R>
     requires std::same_as<std::ranges::range_value_t<R>,
                           std::shared_ptr<Command>>
   void addCommands(R&& cmds) {
-    commands.insert(commands.end(), std::ranges::begin(cmds),
-                    std::ranges::end(cmds));
+    commands.insert(commands.end(), std::ranges::begin(std::forward<R>(cmds)),
+                    std::ranges::end(std::forward<R>(cmds)));
   }
 
   CommandResult<void> execute() override {
@@ -254,7 +260,7 @@ class BulkCommand : public Command {
     return {};
   }
 
-  CommandResult<void> validate() const override {
+  [[nodiscard]] CommandResult<void> validate() const override {
     return std::ranges::all_of(
                commands,
                [](const auto& cmd) { return cmd->validate().has_value(); })
@@ -268,7 +274,12 @@ class CommandObserver {
   virtual void onCommandExecuted(const Command& cmd) = 0;
   virtual void onCommandUndone(const Command& cmd) = 0;
   virtual void onCommandRedone(const Command& cmd) = 0;
+  CommandObserver() = default;
   virtual ~CommandObserver() = default;
+  CommandObserver(const CommandObserver&) = delete;
+  CommandObserver& operator=(const CommandObserver&) = delete;
+  CommandObserver(CommandObserver&&) = delete;
+  CommandObserver& operator=(CommandObserver&&) = delete;
 };
 
 class CommandLogger : public CommandObserver {
@@ -293,13 +304,13 @@ class CommandManager {
       : max_undo_levels_(max_undo_levels) {}
 
   template <Commandlike T>
-  CommandResult<void> executeCommand(std::shared_ptr<T> cmd) {
+  CommandResult<void> executeCommand(std::shared_ptr<T>&& cmd) {
     if (!cmd->canExecute()) {
       return std::unexpected(CommandError::INVALID_STATE);
     }
 
     if (current_group_) {
-      current_group_->addCommand(cmd);
+      current_group_->addCommand(std::move(cmd));
       return CommandResult<void>{};
     }
 
@@ -365,18 +376,17 @@ class CommandManager {
   void endCommandGroup() {
     if (current_group_) {
       executeCommand(std::move(current_group_));
-      current_group_.reset();
     }
   }
 
-  void addObserver(std::shared_ptr<CommandObserver> observer) {
+  void addObserver(const std::shared_ptr<CommandObserver>& observer) {
     observers_.push_back(observer);
   }
 
  private:
   std::vector<std::shared_ptr<Command>> undo_stack_;
   std::vector<std::shared_ptr<Command>> redo_stack_;
-  const size_t max_undo_levels_;
+  size_t max_undo_levels_;
   std::shared_ptr<BulkCommand> current_group_;
   std::vector<std::shared_ptr<CommandObserver>> observers_;
 };
@@ -387,7 +397,10 @@ class CommandGroup {
       : manager_(manager), name_(name) {
     manager_.beginCommandGroup(name);
   }
-
+  CommandGroup(const CommandGroup&) = delete;
+  CommandGroup& operator=(const CommandGroup&) = delete;
+  CommandGroup(CommandGroup&&) = delete;
+  CommandGroup& operator=(CommandGroup&&) = delete;
   ~CommandGroup() { manager_.endCommandGroup(); }
 
  private:

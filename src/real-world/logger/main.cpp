@@ -11,8 +11,9 @@
 #include <source_location>
 #include <string_view>
 #include <thread>
+#include <utility>
 
-enum class LogColor {
+enum class LogColor : uint8_t {
   Reset = 0,
   Red = 31,
   Green = 32,
@@ -22,7 +23,7 @@ enum class LogColor {
   White = 37
 };
 
-enum class LogLevel { Debug, Info, Warning, Error, Critical };
+enum class LogLevel : uint8_t { Debug, Info, Warning, Error, Critical };
 
 template <typename... Args>
 concept ValidFormatString =
@@ -80,7 +81,7 @@ constexpr std::pair<LogColor, std::string_view> getLevelInfo(LogLevel level) {
 constexpr std::string formatLogMessage(const LogEntry& entry,
                                        std::string_view level_str,
                                        std::string message_format) {
-  auto result = message_format;
+  auto result = std::move(message_format);
   const std::array<std::pair<std::string_view, std::string>, 7> replacements = {
       {{"{timestamp}", std::format("{:%Y-%m-%d %H:%M:%S}", entry.timestamp)},
        {"{level}", std::string(level_str)},
@@ -103,7 +104,12 @@ constexpr std::string formatLogMessage(const LogEntry& entry,
 
 class LogSink {
  public:
+  LogSink() = default;
   virtual ~LogSink() = default;
+  LogSink(const LogSink&) = delete;
+  LogSink& operator=(const LogSink&) = delete;
+  LogSink(LogSink&&) = delete;
+  LogSink& operator=(LogSink&&) = delete;
   virtual void write(const LogEntry& entry) = 0;
   virtual void flush() = 0;
   virtual void setMessageFormat(std::string_view message_format) = 0;
@@ -138,8 +144,7 @@ class FileSink : public LogSink {
 
   void write(const LogEntry& entry) override {
     auto [_, level_str] = getLevelInfo(entry.level);
-    file_output_ << formatLogMessage(entry, level_str, message_format_)
-                 << std::endl;
+    file_output_ << formatLogMessage(entry, level_str, message_format_) << '\n';
   }
 
   void flush() override { file_output_.flush(); }
@@ -169,8 +174,7 @@ class RotatingFileSink : public LogSink {
       rotate();
     }
     auto [_, level_str] = getLevelInfo(entry.level);
-    file_output_ << formatLogMessage(entry, level_str, message_format_)
-                 << std::endl;
+    file_output_ << formatLogMessage(entry, level_str, message_format_) << '\n';
   }
 
   void flush() override { file_output_.flush(); }
@@ -182,7 +186,8 @@ class RotatingFileSink : public LogSink {
  private:
   bool shouldRotate() {
     file_output_.seekp(0, std::ios::end);
-    return static_cast<size_t>(file_output_.tellp()) >= max_size_;
+    return std::cmp_greater_equal(
+        static_cast<std::streamoff>(file_output_.tellp()), max_size_);
   }
 
   void rotate() {
@@ -226,6 +231,11 @@ class Logger {
     return instance;
   }
 
+  Logger(const Logger&) = delete;
+  Logger& operator=(const Logger&) = delete;
+  Logger(Logger&&) = delete;
+  Logger& operator=(Logger&&) = delete;
+
   ~Logger() {
     processing_enabled_ = false;
     if (worker_thread_.joinable()) {
@@ -259,18 +269,20 @@ class Logger {
   constexpr void log(LogLevel level, LogMessage<Args...>&& message) {
     if (level < config_.min_level) return;
 
+    auto msg = std::move(message);
+    const auto loc = msg.location;
     const auto formatted = std::apply(
         [&](auto&&... args) {
-          return std::format(message.fmt, std::forward<Args>(args)...);
+          return std::format(msg.fmt, std::forward<Args>(args)...);
         },
-        message.args);
+        std::move(msg.args));
 
     LogEntry entry{.timestamp = std::chrono::system_clock::now(),
                    .level = level,
                    .message = std::move(formatted),
-                   .file = message.location.file_name(),
-                   .line = message.location.line(),
-                   .function = message.location.function_name(),
+                   .file = loc.file_name(),
+                   .line = loc.line(),
+                   .function = loc.function_name(),
                    .thread_id = std::this_thread::get_id()};
 
     std::scoped_lock lock(mutex_);
@@ -343,7 +355,7 @@ class Logger {
   void startWorker() {
     if (!config_.async_processing) return;
 
-    worker_thread_ = std::jthread([this](std::stop_token stop_token) {
+    worker_thread_ = std::jthread([this](const std::stop_token& stop_token) {
       while (!stop_token.stop_requested()) {
         std::this_thread::sleep_for(config_.flush_interval);
         flush();
@@ -388,7 +400,7 @@ int main() {
     std::string name;
     int age;
   };
-  User user{"Alice", 30};
+  User user{.name = "Alice", .age = 30};
   logger.info("User logged in: {} (age: {})", user.name, user.age);
 
   logger.error("Something went wrong!");

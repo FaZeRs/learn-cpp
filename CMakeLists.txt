@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.27)
 
 include(cmake/CPM.cmake)
 
-cpmaddpackage("gh:fazers/cmake#1.0.0")
+cpmaddpackage("gh:fazers/cmake#1.2.0")
 set(CMAKE_MODULE_PATH "${cmake_SOURCE_DIR};")
 
 project(
@@ -12,8 +12,8 @@ project(
   HOMEPAGE_URL "https://naurislinde.dev"
   LANGUAGES CXX C)
 
-include(cmake/Options.cmake)
-include(cmake/CompilationFlags.cmake)
+include(cmake/options.cmake)
+include(cmake/compilation-flags.cmake)
 
 add_library(project_warnings INTERFACE)
 add_library(project_options INTERFACE)
@@ -41,17 +41,16 @@ if(ENABLE_CACHE)
 endif()
 
 include(static-analyzers)
-
 if(ENABLE_CLANG_TIDY)
-  enable_clang_tidy(project_options ${WARNINGS_AS_ERRORS})
+  enable_clang_tidy_global(${WARNINGS_AS_ERRORS})
 endif()
 
 if(ENABLE_CPPCHECK)
-  enable_cppcheck(project_options ${WARNINGS_AS_ERRORS} "")
+  enable_cppcheck_global(${WARNINGS_AS_ERRORS} "")
 endif()
 
 if(ENABLE_INCLUDE_WHAT_YOU_USE)
-  enable_include_what_you_use(project_options)
+  enable_include_what_you_use_global()
 endif()
 
 target_compile_features(project_options INTERFACE cxx_std_${CMAKE_CXX_STANDARD})

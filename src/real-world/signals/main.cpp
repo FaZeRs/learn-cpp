@@ -111,16 +111,18 @@ class Button {
   Signal<> clicked;
   Signal<int, int> positionChanged;
 
-  constexpr void click() { clicked.emit(); }
+  constexpr void click() const { clicked.emit(); }
 
   constexpr void setPosition(int x, int y) { positionChanged.emit(x, y); }
 };
 
 class Window {
  public:
-  constexpr void handleClick() { std::println("Button clicked!"); }
+  // cppcheck-suppress functionStatic
+  constexpr void handleClick() const { std::println("Button clicked!"); }
 
-  constexpr void handlePositionChange(int x, int y) {
+  // cppcheck-suppress functionStatic
+  constexpr void handlePositionChange(int x, int y) const {
     std::println("Button position changed to: ({}, {})", x, y);
   }
 };
