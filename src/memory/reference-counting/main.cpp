@@ -132,8 +132,8 @@ class Resource {
   virtual ~Resource() { std::println("Resource '{}' destroyed", name_); }
   constexpr Resource(const Resource&) noexcept = default;
   constexpr Resource(Resource&&) noexcept = default;
-  constexpr Resource& operator=(const Resource&) noexcept = default;
-  constexpr Resource& operator=(Resource&&) noexcept = default;
+  Resource& operator=(const Resource&) noexcept = default;
+  Resource& operator=(Resource&&) noexcept = default;
 
   [[nodiscard]] constexpr const std::string& getName() const noexcept {
     return name_;
