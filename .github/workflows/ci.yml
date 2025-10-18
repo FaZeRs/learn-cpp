@@ -51,6 +51,10 @@ jobs:
             build_type: Debug
 
     steps:
+      - name: Install dependencies
+        if: ${{ contains(matrix.os, 'ubuntu') }}
+        run: sudo apt-get install -y libx11-dev
+
       - uses: actions/checkout@v4
 
       - name: Setup Cache
