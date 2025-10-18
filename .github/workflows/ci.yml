@@ -27,7 +27,7 @@ jobs:
           - windows-2022
           - ubuntu-24.04
         compiler:
-          - llvm-18
+          - llvm-20
           - gcc-14
         generator:
           - "Ninja"
@@ -38,7 +38,7 @@ jobs:
           - os: windows-2022
             compiler: gcc-14
           - os: windows-2022
-            compiler: llvm-18
+            compiler: llvm-20
         include:
           - os: windows-2022
             compiler: msvc
@@ -53,7 +53,7 @@ jobs:
     steps:
       - name: Install dependencies
         if: ${{ contains(matrix.os, 'ubuntu') }}
-        run: sudo apt-get install -y libx11-dev
+        run: sudo apt-get install -y libx11-dev libtbb-dev
 
       - uses: actions/checkout@v4
 
@@ -71,7 +71,7 @@ jobs:
           vcvarsall: ${{ contains(matrix.os, 'windows' )}}
           cmake: true
           ninja: true
-          vcpkg: true
+          vcpkg: ${{ contains(matrix.os, 'windows' )}}
           ccache: true
           clangtidy: true
           cppcheck: true
