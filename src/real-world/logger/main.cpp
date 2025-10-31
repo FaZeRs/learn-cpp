@@ -78,9 +78,8 @@ constexpr std::pair<LogColor, std::string_view> getLevelInfo(LogLevel level) {
   return {LogColor::White, "UNKNOWN"};
 }
 
-constexpr std::string formatLogMessage(const LogEntry& entry,
-                                       std::string_view level_str,
-                                       std::string message_format) {
+std::string formatLogMessage(const LogEntry& entry, std::string_view level_str,
+                             std::string message_format) {
   auto result = std::move(message_format);
   const std::array<std::pair<std::string_view, std::string>, 7> replacements = {
       {{"{timestamp}", std::format("{:%Y-%m-%d %H:%M:%S}", entry.timestamp)},

@@ -126,18 +126,16 @@ class RefCounted {
 
 class Resource {
  public:
-  constexpr explicit Resource(std::string n) noexcept : name_(std::move(n)) {
+  explicit Resource(std::string n) noexcept : name_(std::move(n)) {
     std::println("Resource '{}' constructed", name_);
   }
   virtual ~Resource() { std::println("Resource '{}' destroyed", name_); }
-  constexpr Resource(const Resource&) noexcept = default;
-  constexpr Resource(Resource&&) noexcept = default;
-  constexpr Resource& operator=(const Resource&) noexcept = default;
-  constexpr Resource& operator=(Resource&&) noexcept = default;
+  Resource(const Resource&) noexcept = default;
+  Resource(Resource&&) noexcept = default;
+  Resource& operator=(const Resource&) noexcept = default;
+  Resource& operator=(Resource&&) noexcept = default;
 
-  [[nodiscard]] constexpr const std::string& getName() const noexcept {
-    return name_;
-  }
+  [[nodiscard]] const std::string& getName() const noexcept { return name_; }
 
  private:
   std::string name_;

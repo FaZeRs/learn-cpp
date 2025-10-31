@@ -120,7 +120,19 @@ class File {
     }
 
     const auto file_time = std::filesystem::last_write_time(file_path_);
+
+// Convert file_time to system_clock time point
+// MSVC doesn't support file_clock::to_sys, so we use clock_cast or manual
+// conversion
+#ifdef _MSC_VER
+    // On MSVC, file_clock is often system_clock
+    const auto sys_time =
+        std::chrono::clock_cast<std::chrono::system_clock>(file_time);
+#else
+    // On other platforms, use to_sys if available
     const auto sys_time = std::chrono::file_clock::to_sys(file_time);
+#endif
+
     return std::format("{:%Y-%m-%d %H:%M:%S}", sys_time);
   }
 

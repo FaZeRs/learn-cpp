@@ -10,23 +10,22 @@
 class Resource {
  public:
   // Constructor
-  explicit constexpr Resource(std::string_view data = "") : data_(data) {
+  explicit Resource(std::string_view data = "") : data_(data) {
     std::println("Constructor called for: {}", data_);
   }
 
   // Copy constructor
-  constexpr Resource(const Resource& other) : data_(other.data_) {
+  Resource(const Resource& other) : data_(other.data_) {
     std::println("Copy constructor called for: {}", data_);
   }
 
   // Move constructor
-  constexpr Resource(Resource&& other) noexcept
-      : data_(std::exchange(other.data_, "")) {
+  Resource(Resource&& other) noexcept : data_(std::exchange(other.data_, "")) {
     std::println("Move constructor called for: {}", data_);
   }
 
   // Copy assignment
-  constexpr Resource& operator=(const Resource& other) {
+  Resource& operator=(const Resource& other) {
     std::println("Copy assignment called for: {}", other.data_);
     if (this != &other) {
       data_ = other.data_;
@@ -35,7 +34,7 @@ class Resource {
   }
 
   // Move assignment
-  constexpr Resource& operator=(Resource&& other) noexcept {
+  Resource& operator=(Resource&& other) noexcept {
     std::println("Move assignment called for: {}", other.data_);
     if (this != &other) {
       data_ = std::exchange(other.data_, "");
@@ -93,7 +92,7 @@ class Container {
 // Function demonstrating perfect forwarding
 template <typename T, typename... Args>
   requires std::constructible_from<T, Args...>
-[[nodiscard]] constexpr Container<T> make_container(Args&&... args) {
+[[nodiscard]] Container<T> make_container(Args&&... args) {
   return Container<T>(std::forward<Args>(args)...);
 }
 
