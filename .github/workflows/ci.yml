@@ -24,7 +24,6 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - windows-2025
           - ubuntu-24.04
         compiler:
           - llvm-20
@@ -34,21 +33,6 @@ jobs:
         build_type:
           - Release
           - Debug
-        exclude:
-          - os: windows-2025
-            compiler: gcc-14
-          - os: windows-2025
-            compiler: llvm-20
-        include:
-          - os: windows-2025
-            compiler: msvc
-            generator: "Visual Studio 17 2022"
-            build_type: Release
-
-          - os: windows-2025
-            compiler: msvc
-            generator: "Visual Studio 17 2022"
-            build_type: Debug
 
     steps:
       - name: Install dependencies
@@ -68,15 +52,15 @@ jobs:
         uses: aminya/setup-cpp@v1
         with:
           compiler: ${{ matrix.compiler }}
-          vcvarsall: ${{ contains(matrix.os, 'windows' )}}
+          vcvarsall: false
           cmake: true
           ninja: true
-          vcpkg: ${{ contains(matrix.os, 'windows' )}}
+          vcpkg: false
           ccache: true
           clangtidy: true
           cppcheck: true
-          gcovr: ${{ contains(matrix.os, 'ubuntu') }}
-          opencppcoverage: ${{ contains(matrix.os, 'windows') }}
+          gcovr: true
+          opencppcoverage: false
 
       - name: Create Build Environment
         run: cmake -E make_directory ${{ runner.workspace }}/build
@@ -85,11 +69,7 @@ jobs:
         shell: bash
         working-directory: ${{ runner.workspace }}/build
         run: |
-          if [[ "${{ matrix.os }}" == *"windows"* ]]; then
-            cmake -G "${{ matrix.generator }}" $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE:STRING=${{ matrix.build_type }} -DCMAKE_TOOLCHAIN_FILE=~/vcpkg/scripts/buildsystems/vcpkg.cmake
-          else
-            cmake -G "${{ matrix.generator }}" $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE:STRING=${{ matrix.build_type }}
-          fi
+          cmake -G "${{ matrix.generator }}" $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE:STRING=${{ matrix.build_type }}
 
       - name: Build
         working-directory: ${{ runner.workspace }}/build

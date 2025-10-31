@@ -46,7 +46,7 @@ auto fact10 = Factorial<10>::value;  // 3628800
 ## Requirements
 
 - C++11 or later
-- A modern C++ compiler (GCC, Clang, MSVC)
+- A modern C++ compiler (GCC, Clang)
 
 ## Building
 

@@ -17,7 +17,7 @@ This project includes implementations and examples of:
 ### Prerequisites
 
 - CMake 3.27 or higher
-- Modern C++ Compiler (GCC-14, LLVM-18, or MSVC)
+- Modern C++ Compiler (GCC-14, LLVM-20)
 - Ninja or Visual Studio 2022 (for Windows)
 
 ### Building the Project
